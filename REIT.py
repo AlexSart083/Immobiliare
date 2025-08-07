@@ -462,9 +462,9 @@ def render_real_estate_section():
         costi_gestione_euro = st.number_input(
             "Costi Gestione Annui (€)", 
             min_value=0.00, 
-            max_value=50000.00,
-            value=1000.00,
-            step=100.00,
+            max_value=100000.00,
+            value=300.00,
+            step=50.00,
             key="real_estate_annual_costs_euro",
             help="Costi fissi annui (es. amministratore, pulizie, piccole manutenzioni). Verranno adeguati all'inflazione."
         )
