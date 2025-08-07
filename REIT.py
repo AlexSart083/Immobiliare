@@ -171,12 +171,15 @@ def calculate_real_estate_investment_improved(params):
         valore_presente_affitto = affitto_netto_anno / ((1 + inflazione_decimal) ** anno)
         totale_affitti_netti_reale += valore_presente_affitto
     
-    rendimento_totale_nominale = totale_affitti_netti + guadagno_capitale_nominale
-    rendimento_totale_reale = totale_affitti_netti_reale + guadagno_capitale_reale
+    # Subtract one-time commissions from total returns
+    rendimento_totale_nominale = totale_affitti_netti + guadagno_capitale_nominale - params['commissione_iniziale'] - params['commissione_finale']
+    rendimento_totale_reale = totale_affitti_netti_reale + guadagno_capitale_reale - params['commissione_iniziale'] - params['commissione_finale']
     
     # CAGR calculation - CORRECTED for real values
-    cagr_nominale = ((valore_finale_nominale + totale_affitti_netti) / params['valore_immobile']) ** (1/params['anni_investimento']) - 1 if params['valore_immobile'] > 0 else 0
-    cagr_reale = ((valore_finale_reale + totale_affitti_netti_reale) / params['valore_immobile']) ** (1/params['anni_investimento']) - 1 if params['valore_immobile'] > 0 else 0
+    # NOTE: The one-time commissions should be considered in the initial and final capital for a proper CAGR calculation.
+    # Here, we subtract them from the total return for simplicity as requested.
+    cagr_nominale = ((valore_finale_nominale + totale_affitti_netti - params['commissione_iniziale'] - params['commissione_finale']) / params['valore_immobile']) ** (1/params['anni_investimento']) - 1 if params['valore_immobile'] > 0 else 0
+    cagr_reale = ((valore_finale_reale + totale_affitti_netti_reale - params['commissione_iniziale'] - params['commissione_finale']) / params['valore_immobile']) ** (1/params['anni_investimento']) - 1 if params['valore_immobile'] > 0 else 0
     
     # Calculate rent growth analysis
     affitto_iniziale = params['affitto_lordo']
@@ -211,7 +214,9 @@ def calculate_real_estate_investment_improved(params):
         'crescita_affitto_totale': crescita_affitto_totale,
         'crescita_affitto_annua': crescita_affitto_annua,
         'costi_gestione_finali': costi_gestione_finali,
-        'crescita_costi_gestione': crescita_costi_gestione
+        'crescita_costi_gestione': crescita_costi_gestione,
+        'commissione_iniziale': params['commissione_iniziale'],
+        'commissione_finale': params['commissione_finale']
     }
 
 def display_real_estate_results_simplified(results, params):
@@ -247,6 +252,11 @@ def display_real_estate_results_simplified(results, params):
         # Mostra costi mutuo se presente
         if results['totale_costi_mutuo'] > 0:
             st.write(f"• **Totale Costi Mutuo: {format_currency(results['totale_costi_mutuo'])}**")
+        
+        # Show one-time commissions
+        if results['commissione_iniziale'] > 0 or results['commissione_finale'] > 0:
+            st.write(f"• **Commissioni Iniziali: {format_currency(results['commissione_iniziale'])}**")
+            st.write(f"• **Commissioni Finali: {format_currency(results['commissione_finale'])}**")
         
         rendimento_perc_nominale = (results['rendimento_totale_nominale'] / params['valore_immobile']) * 100 if params['valore_immobile'] > 0 else 0
         rendimento_perc_reale = (results['rendimento_totale_reale'] / params['valore_immobile']) * 100 if params['valore_immobile'] > 0 else 0
@@ -290,7 +300,7 @@ def display_real_estate_results_simplified(results, params):
     
     with summary_col1:        
         # Total investment and returns summary
-        investimento_totale = params['valore_immobile'] + results['totale_costi_mutuo']
+        investimento_totale = params['valore_immobile'] + results['totale_costi_mutuo'] + results['commissione_iniziale']
         capitale_finale_affitti_nominale = results['valore_finale_nominale'] + results['totale_affitti_netti']
         capitale_finale_affitti_reale = results['valore_finale_reale'] + results['totale_affitti_netti_reale']
         
@@ -347,6 +357,25 @@ def render_real_estate_section():
             value=10,
             step=1,
             key="real_estate_years"
+        )
+        
+        st.write("**Commissioni una tantum**")
+        commissione_iniziale = st.number_input(
+            "Commissione Iniziale (€)",
+            min_value=0.00,
+            value=0.00,
+            step=100.00,
+            key="real_estate_initial_commission",
+            help="Costi di acquisto una tantum (es. agenzia, notaio)"
+        )
+
+        commissione_finale = st.number_input(
+            "Commissione Finale (€)",
+            min_value=0.00,
+            value=0.00,
+            step=100.00,
+            key="real_estate_final_commission",
+            help="Costi di vendita una tantum (es. agenzia)"
         )
     
     with col2:
@@ -508,7 +537,9 @@ def render_real_estate_section():
                 'periodo_sfitto_perc': periodo_sfitto_perc,
                 'inflazione_perc': inflazione_perc,
                 'adeguamento_affitto_anni': adeguamento_affitto_anni,
-                'tipo_adeguamento': tipo_adeguamento
+                'tipo_adeguamento': tipo_adeguamento,
+                'commissione_iniziale': commissione_iniziale,
+                'commissione_finale': commissione_finale
             }
             results = calculate_real_estate_investment_improved(params)
             display_real_estate_results_simplified(results, params)
