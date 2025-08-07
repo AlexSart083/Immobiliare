@@ -331,7 +331,7 @@ def display_real_estate_results_simplified(results, params):
 def render_real_estate_section():
     """Render real estate investment calculator section"""
     st.subheader("🏘️ Analisi Investimento Immobiliare")
-    st.info("💡 Calcolo completo con rivalutazione, inflazione, mutuo e adeguamento affitti personalizzabile")
+    st.info("💡 Stima con rivalutazione, inflazione, mutuo e adeguamento affitti personalizzabile")
     
     col1, col2, col3 = st.columns(3)
     
