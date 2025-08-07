@@ -380,17 +380,15 @@ def display_real_estate_results_simplified(results, params):
             positive_indicators += 1
         if params['rivalutazione_annua'] > params['inflazione_perc']:
             positive_indicators += 1
-        if break_even_years != float('inf') and break_even_years < 20:
-            positive_indicators += 1
         
         # Final assessment
-        if positive_indicators >= 4:
+        if positive_indicators >= 3:
             st.success("🚀 **Investimento Attraente**")
             st.write("• Buoni rendimenti e struttura costi efficiente")
-        elif positive_indicators >= 3:
+        elif positive_indicators >= 2:
             st.info("📈 **Investimento Accettabile**")
             st.write("• Rendimenti moderati, valuta pro e contro")
-        elif positive_indicators >= 2:
+        elif positive_indicators >= 1:
             st.warning("⚠️ **Investimento Rischioso**")
             st.write("• Rendimenti limitati, considera alternative")
         else:
