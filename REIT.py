@@ -349,7 +349,7 @@ def render_real_estate_section():
         affitto_lordo = st.number_input(
             "Affitto Lordo Annuo (€)", 
             min_value=0.00, 
-            value=14900.00,
+            value=12000.00,
             step=100.00,
             key="real_estate_rent"
         )
@@ -358,7 +358,7 @@ def render_real_estate_section():
             "Rivalutazione Annua (%)", 
             min_value=0.0, 
             max_value=50.0,
-            value=2.5,
+            value=2.0,
             step=0.1,
             key="real_estate_appreciation"
         )
@@ -397,17 +397,17 @@ def render_real_estate_section():
             "Costi Assicurazione Annui (€)", 
             min_value=0.00, 
             max_value=10000.00,
-            value=300.00,
+            value=250.00,
             step=50.00,
             key="real_estate_insurance_euro",
             help="Costi fissi annui per assicurazione. Verranno adeguati all'inflazione."
         )
         
         costi_gestione_euro = st.number_input(
-            "Costi Gestione Annui (€)", 
+            "Costi Fissi Annui (€)", 
             min_value=0.00, 
             max_value=100000.00,
-            value=300.00,
+            value=250.00,
             step=50.00,
             key="real_estate_annual_costs_euro",
             help="Costi fissi annui (es. amministratore, pulizie, piccole manutenzioni). Verranno adeguati all'inflazione."
