@@ -242,6 +242,11 @@ def display_real_estate_results_simplified(results, params):
         st.write(f"• **Crescita Affitto Totale: {format_percentage(results['crescita_affitto_totale'])}**")
         st.write(f"• **Totale Affitti Netti (Nominale): {format_currency(results['totale_affitti_netti'])}**")
         st.write(f"• **Totale Affitti Netti (Reale): {format_currency(results['totale_affitti_netti_reale'])}**")
+        
+        # NUOVA AGGIUNTA: Media mensile affitti reale
+        media_affitti_mensile_reale = results['totale_affitti_netti_reale'] / (12 * params['anni_investimento'])
+        st.write(f"• **Media Affitti Mensili Reale: {format_currency(media_affitti_mensile_reale)}**")
+        
         st.write(f"• Modalità Adeguamento: **{params['tipo_adeguamento']}**")
     
     with res_col3:
