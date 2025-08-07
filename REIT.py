@@ -367,33 +367,6 @@ def display_real_estate_results_simplified(results, params):
         st.write(f"• **Capitale Finale + Affitti (Reale): {format_currency(capitale_finale_affitti_reale)}**")
     
     with summary_col2:
-        # Final recommendation based on key metrics
-        st.write("**💡 Valutazione Complessiva:**")
-        
-        # Count positive indicators
-        positive_indicators = 0
-        if results['cagr_reale'] > 0.03:  # 3%
-            positive_indicators += 1
-        if results['rendimento_medio_annuo'] > 4:  # 4%
-            positive_indicators += 1
-        if cost_percentage < 50:  # Costs < 50%
-            positive_indicators += 1
-        if params['rivalutazione_annua'] > params['inflazione_perc']:
-            positive_indicators += 1
-        
-        # Final assessment
-        if positive_indicators >= 3:
-            st.success("🚀 **Investimento Attraente**")
-            st.write("• Buoni rendimenti e struttura costi efficiente")
-        elif positive_indicators >= 2:
-            st.info("📈 **Investimento Accettabile**")
-            st.write("• Rendimenti moderati, valuta pro e contro")
-        elif positive_indicators >= 1:
-            st.warning("⚠️ **Investimento Rischioso**")
-            st.write("• Rendimenti limitati, considera alternative")
-        else:
-            st.error("📉 **Investimento Non Raccomandato**")
-            st.write("• Rendimenti insufficienti per i rischi")
     
     # Disclaimer semplificato
     st.info("""
