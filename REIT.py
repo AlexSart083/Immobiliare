@@ -68,13 +68,13 @@ def calculate_real_estate_investment_improved(params):
     tassazione_decimal = params['tassazione_affitti_perc'] / 100
     
     # Convert cost percentages to decimals
-    costi_assicurazione_decimal = params['costi_assicurazione_perc'] / 100
     tassa_catastale_decimal = params['tassa_catastale_perc'] / 100
     
     # Initialize variables for year-by-year calculation
     valore_corrente = params['valore_immobile']
     affitto_corrente = params['affitto_lordo']
     costi_gestione_correnti = params['costi_gestione_euro']  # Costi fissi iniziali
+    costi_assicurazione_correnti = params['costi_assicurazione_euro']  # Costi assicurazione iniziali
     
     # Calculate initial rent-to-value ratio for property value adjustments
     rapporto_affitto_iniziale = params['affitto_lordo'] / params['valore_immobile']
@@ -95,8 +95,9 @@ def calculate_real_estate_investment_improved(params):
         # Update property value with appreciation
         valore_corrente = valore_corrente * (1 + rivalutazione_decimal)
         
-        # Update management costs with inflation
+        # Update management costs and insurance with inflation
         costi_gestione_correnti = costi_gestione_correnti * (1 + inflazione_decimal)
+        costi_assicurazione_correnti = costi_assicurazione_correnti * (1 + inflazione_decimal)
         
         # Determine if rent adjustment should occur
         adeguamento_questo_anno = (anno % params['adeguamento_affitto_anni'] == 0)
@@ -120,7 +121,6 @@ def calculate_real_estate_investment_improved(params):
             costo_mutuo_anno = rata_mutuo_annua
         
         # Calculate costs as percentages of current property value (updated annually)
-        costi_assicurazione_correnti = valore_corrente * costi_assicurazione_decimal
         tassa_catastale_corrente = valore_corrente * tassa_catastale_decimal
         
         # Calculate effective rent considering vacancy
@@ -129,7 +129,7 @@ def calculate_real_estate_investment_improved(params):
         # Calculate taxes on rent
         tasse_affitto = affitto_effettivo * tassazione_decimal
         
-        # Calculate annual costs (management costs adjusted for inflation, others based on current property value)
+        # Calculate annual costs (management costs and insurance adjusted for inflation, others based on current property value)
         manutenzione_annua = valore_corrente * manutenzione_decimal
         costi_totali_annui = (costi_assicurazione_correnti + costi_gestione_correnti + 
                             manutenzione_annua + tassa_catastale_corrente + 
@@ -393,13 +393,14 @@ def render_real_estate_section():
     with col2:
         st.write("**💸 Costi e Spese**")
         
-        costi_assicurazione_perc = st.number_input(
-            "Costi Assicurazione Annui (% valore immobile)", 
-            min_value=0.0, 
-            max_value=30.0,
-            value=0.3,
-            step=0.1,
-            key="real_estate_insurance_perc"
+        costi_assicurazione_euro = st.number_input(
+            "Costi Assicurazione Annui (€)", 
+            min_value=0.00, 
+            max_value=10000.00,
+            value=300.00,
+            step=50.00,
+            key="real_estate_insurance_euro",
+            help="Costi fissi annui per assicurazione. Verranno adeguati all'inflazione."
         )
         
         costi_gestione_euro = st.number_input(
@@ -525,10 +526,12 @@ def render_real_estate_section():
         st.write("• **Inflazione**: L'affitto cresce con l'inflazione")
         st.write("• **Nessun Adeguamento**: Affitto fisso (perdita potere d'acquisto)")
         st.write("• **Costi Gestione**: Importo fisso adeguato annualmente all'inflazione")
+        st.write("• **Costi Assicurazione**: Importo fisso adeguato annualmente all'inflazione")
     
     with note_col2:
         st.write("• Costi percentuali si aggiornano sempre al valore dell'immobile")
         st.write("• Manutenzione e tasse calcolate su valore corrente")
+        st.write("• Assicurazione e gestione: costi fissi + inflazione")
         st.write("• **Mutuo**: Se presente, viene considerato fino alla scadenza")
         st.write("• Rate mutuo sono fisse e non si adeguano all'inflazione")
     
@@ -539,7 +542,7 @@ def render_real_estate_section():
                 'affitto_lordo': affitto_lordo,
                 'rivalutazione_annua': rivalutazione_annua,
                 'anni_investimento': anni_investimento,
-                'costi_assicurazione_perc': costi_assicurazione_perc,
+                'costi_assicurazione_euro': costi_assicurazione_euro,
                 'costi_gestione_euro': costi_gestione_euro,
                 'rata_mutuo_mensile': rata_mutuo_mensile,
                 'anni_restanti_mutuo': anni_restanti_mutuo,
