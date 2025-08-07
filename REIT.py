@@ -302,17 +302,18 @@ def display_real_estate_results_simplified(results, params):
         # Total investment and returns summary - CORRECTED
         investimento_totale = params['valore_immobile'] + results['totale_costi_mutuo'] + results['commissione_iniziale']
         
-        # FIXED: Subtract commissions from final capital calculations
-        capitale_finale_affitti_nominale = results['valore_finale_nominale'] + results['totale_affitti_netti'] - results['commissione_finale']
-        capitale_finale_affitti_reale = results['valore_finale_reale'] + results['totale_affitti_netti_reale'] - results['commissione_finale']
+        # FIXED: Subtract BOTH initial and final commissions from final capital calculations
+        capitale_finale_affitti_nominale = results['valore_finale_nominale'] + results['totale_affitti_netti'] - results['commissione_iniziale'] - results['commissione_finale']
+        capitale_finale_affitti_reale = results['valore_finale_reale'] + results['totale_affitti_netti_reale'] - results['commissione_iniziale'] - results['commissione_finale']
         
         st.write(f"• **Investimento Totale: {format_currency(investimento_totale)}**")
         st.write(f"• **Capitale Finale + Affitti (Nominale): {format_currency(capitale_finale_affitti_nominale)}**")
         st.write(f"• **Capitale Finale + Affitti (Reale): {format_currency(capitale_finale_affitti_reale)}**")
         
         # Show net gain after all costs including commissions
-        if results['commissione_finale'] > 0:
-            st.write(f"• *(Già detratte commissioni finali: {format_currency(results['commissione_finale'])})*")
+        if results['commissione_iniziale'] > 0 or results['commissione_finale'] > 0:
+            commissioni_totali = results['commissione_iniziale'] + results['commissione_finale']
+            st.write(f"• *(Già detratte commissioni totali: {format_currency(commissioni_totali)})*")
     
     with summary_col2:
         # Disclaimer semplificato
