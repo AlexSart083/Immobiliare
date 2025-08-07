@@ -367,13 +367,12 @@ def display_real_estate_results_simplified(results, params):
         st.write(f"• **Capitale Finale + Affitti (Reale): {format_currency(capitale_finale_affitti_reale)}**")
     
     with summary_col2:
-    
-    # Disclaimer semplificato
-    st.info("""
-    **📝 Nota:** Questo calcolo è basato su assunzioni semplificate. I mercati immobiliari reali sono influenzati da 
-    numerosi fattori non considerati (domanda/offerta locale, normative, condizioni economiche, ecc.). 
-    Consulta sempre un consulente finanziario prima di investire.
-    """)
+        # Disclaimer semplificato
+        st.info("""
+        **📝 Nota:** Questo calcolo è basato su assunzioni semplificate. I mercati immobiliari reali sono influenzati da 
+        numerosi fattori non considerati (domanda/offerta locale, normative, condizioni economiche, ecc.). 
+        Consulta sempre un consulente finanziario prima di investire.
+        """)
 
 def render_real_estate_section():
     """Render real estate investment calculator section"""
