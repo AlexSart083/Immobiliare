@@ -235,7 +235,8 @@ def display_real_estate_results_simplified(results, params):
         st.write(f"• Affitto Iniziale: {format_currency(params['affitto_lordo'])}")
         st.write(f"• **Affitto Finale: {format_currency(results['affitto_finale'])}**")
         st.write(f"• **Crescita Affitto Totale: {format_percentage(results['crescita_affitto_totale'])}**")
-        st.write(f"• **Totale Affitti Netti {params['anni_investimento']} anni: {format_currency(results['totale_affitti_netti'])}**")
+        st.write(f"• **Totale Affitti Netti (Nominale): {format_currency(results['totale_affitti_netti'])}**")
+        st.write(f"• **Totale Affitti Netti (Reale): {format_currency(results['totale_affitti_netti_reale'])}**")
         st.write(f"• Modalità Adeguamento: **{params['tipo_adeguamento']}**")
     
     with res_col3:
