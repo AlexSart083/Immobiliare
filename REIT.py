@@ -356,14 +356,7 @@ def display_real_estate_results_simplified(results, params):
     st.write("**📋 Riepilogo Investimento:**")
     summary_col1, summary_col2 = st.columns(2)
     
-    with summary_col1:
-        # Break-even analysis
-        avg_net_rent = results['totale_affitti_netti'] / params['anni_investimento'] if params['anni_investimento'] > 0 else 0
-        break_even_years = params['valore_immobile'] / avg_net_rent if avg_net_rent > 0 else float('inf')
-        
-        if break_even_years != float('inf') and break_even_years > 0:
-            st.write(f"• **Payback Period: {break_even_years:.1f} anni**")
-        
+    with summary_col1:        
         # Total investment and returns summary
         investimento_totale = params['valore_immobile'] + results['totale_costi_mutuo']
         capitale_finale_affitti_nominale = results['valore_finale_nominale'] + results['totale_affitti_netti']
