@@ -253,76 +253,7 @@ def display_real_estate_results_simplified(results, params):
         st.write(f"• Rendimento % (Nominale): {format_percentage(rendimento_perc_nominale)}")
         st.write(f"• **CAGR (Nominale): {format_percentage(results['cagr_nominale'] * 100)}**")
         st.write(f"• **CAGR (Reale): {format_percentage(results['cagr_reale'] * 100)}**")
-    
-    # Simplified cost breakdown - ultimo anno only
-    st.write("**💸 Sintesi Costi e Performance:**")
-    cost_col1, cost_col2 = st.columns(2)
-    
-    # Calculate final year key metrics
-    valore_finale = results['valori_annuali'][-1]
-    affitto_finale = results['affitto_finale']
-    periodo_sfitto_decimal = params['periodo_sfitto_perc'] / 100
-    affitto_effettivo_finale = affitto_finale * (1 - periodo_sfitto_decimal)
-    affitto_netto_finale = results['affitti_netti_annuali'][-1]
-    
-    with cost_col1:
-        st.write("**📊 Ultimo Anno - Metriche Chiave:**")
-        st.write(f"• Affitto Lordo: {format_currency(affitto_finale)}")
-        st.write(f"• Affitto Effettivo: {format_currency(affitto_effettivo_finale)}")
-        st.write(f"• **Affitto Netto: {format_currency(affitto_netto_finale)}**")
         
-        # Calculate key percentages
-        rendimento_lordo_finale = (affitto_finale / valore_finale) * 100 if valore_finale > 0 else 0
-        rendimento_netto_finale = (affitto_netto_finale / params['valore_immobile']) * 100 if params['valore_immobile'] > 0 else 0
-        st.write(f"• Rendimento Lordo: {format_percentage(rendimento_lordo_finale)}")
-        st.write(f"• **Rendimento Netto: {format_percentage(rendimento_netto_finale)}**")
-        
-        # Percentage of costs on effective rent
-        total_costs_final_year = affitto_effettivo_finale - affitto_netto_finale
-        cost_percentage = (total_costs_final_year / affitto_effettivo_finale) * 100 if affitto_effettivo_finale > 0 else 0
-        st.write(f"• **% Costi Totali su Affitto: {format_percentage(cost_percentage)}**")
-    
-    with cost_col2:
-        st.write("**⚠️ Valutazioni e Raccomandazioni:**")
-        
-        # Performance evaluation
-        if results['rendimento_medio_annuo'] > 7:
-            st.success("✅ Rendimento netto interessante (> 7%)")
-        elif results['rendimento_medio_annuo'] > 3:
-            st.info("📈 Rendimento netto moderato (3-7%)")
-        else:
-            st.warning("⚠️ Rendimento netto basso (< 3%)")
-        
-        # CAGR evaluation
-        if results['cagr_reale'] > 0.05:
-            st.success("🚀 CAGR reale buono (> 5%)")
-        elif results['cagr_reale'] > 0:
-            st.info("📊 CAGR reale positivo")
-        else:
-            st.error("📉 CAGR reale negativo")
-        
-        # Cost structure evaluation
-        if cost_percentage > 60:
-            st.warning("⚠️ Struttura costi elevata (> 60%)")
-        elif cost_percentage < 40:
-            st.success("✅ Struttura costi efficiente (< 40%)")
-        else:
-            st.info("📊 Struttura costi nella media (40-60%)")
-        
-        # Rent adjustment strategy evaluation
-        if params['tipo_adeguamento'] == "Nessun Adeguamento":
-            st.error("🚨 Strategia rischiosa: perdita potere d'acquisto")
-        elif params['tipo_adeguamento'] == "Inflazione":
-            st.success("✅ Strategia conservativa")
-        else:  # Valore Immobile
-            st.info("📈 Strategia dinamica")
-        
-        # Property appreciation vs inflation
-        if params['rivalutazione_annua'] <= params['inflazione_perc']:
-            st.warning("⚠️ Rivalutazione ≤ Inflazione")
-        else:
-            st.success("✅ Rivalutazione > Inflazione")
-    
     # Mortgage analysis (if present) - simplified
     if results['totale_costi_mutuo'] > 0:
         st.write("**🏦 Analisi Mutuo:**")
