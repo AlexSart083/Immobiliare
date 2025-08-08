@@ -96,7 +96,7 @@ def display_real_estate_results_simplified(results, params):
     st.write("**📋 Riepilogo Investimento:**")
     summary_col1, summary_col2 = st.columns(2)
     with summary_col1:
-        investimento_totale = params['valore_immobile'] + results['totale_costi_mutuo'] + results['commissione_iniziale']
+        investimento_totale = params['valore_immobile'] + results['commissione_iniziale'] + - results['commissione_finale']
         capitale_finale_affitti_nominale = results['valore_finale_nominale'] + results['totale_affitti_netti'] - results['commissione_iniziale'] - results['commissione_finale']
         capitale_finale_affitti_reale = results['valore_finale_reale'] + results['totale_affitti_netti_reale'] - results['commissione_iniziale'] - results['commissione_finale']
         st.write(f"• **Investimento Totale: {format_currency(investimento_totale)}**")
