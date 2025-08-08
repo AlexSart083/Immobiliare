@@ -99,7 +99,7 @@ def display_real_estate_results_simplified(results, params):
         investimento_totale = params['valore_immobile'] + results['commissione_iniziale'] + - results['commissione_finale']
         capitale_finale_affitti_nominale = results['valore_finale_nominale'] + results['totale_affitti_netti'] - results['commissione_iniziale'] - results['commissione_finale']
         capitale_finale_affitti_reale = results['valore_finale_reale'] + results['totale_affitti_netti_reale'] - results['commissione_iniziale'] - results['commissione_finale']
-        st.write(f"• **Investimento Totale: {format_currency(investimento_totale)}**")
+        # st.write(f"• **Investimento Totale: {format_currency(investimento_totale)}**")
         st.write(f"• **Capitale Finale + Affitti (Nominale): {format_currency(capitale_finale_affitti_nominale)}**")
         st.write(f"• **Capitale Finale + Affitti (Reale): {format_currency(capitale_finale_affitti_reale)}**")
         if results['commissione_iniziale'] > 0 or results['commissione_finale'] > 0:
