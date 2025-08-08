@@ -6,7 +6,7 @@ def render_header():
     st.title("🏠 Calcolatore Investimenti Immobiliari")
     st.markdown("---")
     st.markdown("### 💡 Analisi Completa con Rivalutazione, Inflazione e Adeguamento Affitti")
-
+    
 def render_footer():
     st.markdown("---")
     st.markdown("### ⚠️ **DISCLAIMER IMPORTANTE**")
