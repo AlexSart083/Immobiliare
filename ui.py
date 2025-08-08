@@ -55,6 +55,16 @@ def display_real_estate_results_simplified(results, params):
         st.write(f"• **Totale Affitti Netti (Reale): {format_currency(results['totale_affitti_netti_reale'])}**")
         media_affitti_mensile_reale = results['totale_affitti_netti_reale'] / (12 * params['anni_investimento'])
         st.write(f"• **Media Affitti Mensili Reale: {format_currency(media_affitti_mensile_reale)}**")
+        
+        # Mostra analisi senza mutuo se presente
+        if results['totale_costi_mutuo'] > 0:
+            totale_affitti_netti_senza_mutuo_nominale = results['totale_affitti_netti'] + results['totale_costi_mutuo']
+            totale_affitti_netti_senza_mutuo_reale = results['totale_affitti_netti_reale'] + results['totale_costi_mutuo']
+            media_affitti_mensile_senza_mutuo_reale = totale_affitti_netti_senza_mutuo_reale / (12 * params['anni_investimento'])
+            st.write(f"• **Totale Affitti Netti senza mutuo (Nominale): {format_currency(totale_affitti_netti_senza_mutuo_nominale)}**")
+            st.write(f"• **Totale Affitti Netti senza mutuo (Reale): {format_currency(totale_affitti_netti_senza_mutuo_reale)}**")
+            st.write(f"• **Media Affitti Mensili senza mutuo Reale: {format_currency(media_affitti_mensile_senza_mutuo_reale)}**")
+        
         st.write(f"• Modalità Adeguamento: **{params['tipo_adeguamento']}**")
 
     with res_col3:
