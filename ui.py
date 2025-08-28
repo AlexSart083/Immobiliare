@@ -51,19 +51,21 @@ def display_real_estate_results_simplified(results, params):
         st.write(f"• Affitto Iniziale: {format_currency(params['affitto_lordo'])}")
         st.write(f"• **Affitto Finale: {format_currency(results['affitto_finale'])}**")
         st.write(f"• **Crescita Affitto Totale: {format_percentage(results['crescita_affitto_totale'])}**")
+        
+        # Sezione CON mutuo
+        st.write("**Con Mutuo:**")
         st.write(f"• **Totale Affitti Netti (Nominale): {format_currency(results['totale_affitti_netti'])}**")
         st.write(f"• **Totale Affitti Netti (Reale): {format_currency(results['totale_affitti_netti_reale'])}**")
         media_affitti_mensile_reale = results['totale_affitti_netti_reale'] / (12 * params['anni_investimento'])
         st.write(f"• **Media Affitti Mensili Reale: {format_currency(media_affitti_mensile_reale)}**")
         
-        # Mostra analisi senza mutuo se presente
+        # Sezione SENZA mutuo (solo se c'è un mutuo)
         if results['totale_costi_mutuo'] > 0:
-            totale_affitti_netti_senza_mutuo_nominale = results['totale_affitti_netti'] + results['totale_costi_mutuo']
-            totale_affitti_netti_senza_mutuo_reale = results['totale_affitti_netti_reale'] + results['totale_costi_mutuo']
-            media_affitti_mensile_senza_mutuo_reale = totale_affitti_netti_senza_mutuo_reale / (12 * params['anni_investimento'])
-            st.write(f"• **Totale Affitti Netti senza mutuo (Nominale): {format_currency(totale_affitti_netti_senza_mutuo_nominale)}**")
-            st.write(f"• **Totale Affitti Netti senza mutuo (Reale): {format_currency(totale_affitti_netti_senza_mutuo_reale)}**")
-            st.write(f"• **Media Affitti Mensili senza mutuo Reale: {format_currency(media_affitti_mensile_senza_mutuo_reale)}**")
+            st.write("**Senza Mutuo (per confronto):**")
+            st.write(f"• **Totale Affitti Netti (Nominale): {format_currency(results['totale_affitti_netti_senza_mutuo'])}**")
+            st.write(f"• **Totale Affitti Netti (Reale): {format_currency(results['totale_affitti_netti_senza_mutuo_reale'])}**")
+            media_affitti_senza_mutuo_reale = results['totale_affitti_netti_senza_mutuo_reale'] / (12 * params['anni_investimento'])
+            st.write(f"• **Media Mensile Reale: {format_currency(media_affitti_senza_mutuo_reale)}**")
         
         st.write(f"• Modalità Adeguamento: **{params['tipo_adeguamento']}**")
 
@@ -71,56 +73,87 @@ def display_real_estate_results_simplified(results, params):
         st.write("**📈 Rendimento Totale:**")
         st.write(f"• **Rendimento Totale (Nominale): {format_currency(results['rendimento_totale_nominale'])}**")
         st.write(f"• **Rendimento Totale (Reale): {format_currency(results['rendimento_totale_reale'])}**")
-        if results['totale_costi_mutuo'] > 0:
-            st.write(f"• **Totale Costi Mutuo: {format_currency(results['totale_costi_mutuo'])}**")
+        
         if results['commissione_iniziale'] > 0 or results['commissione_finale'] > 0:
             st.write(f"• **Commissioni Iniziali: {format_currency(results['commissione_iniziale'])}**")
             st.write(f"• **Commissioni Finali: {format_currency(results['commissione_finale'])}**")
+        
         rendimento_perc_nominale = (results['rendimento_totale_nominale'] / params['valore_immobile']) * 100 if params['valore_immobile'] > 0 else 0
         rendimento_perc_reale = (results['rendimento_totale_reale'] / params['valore_immobile']) * 100 if params['valore_immobile'] > 0 else 0
         st.write(f"• Rendimento % (Nominale): {format_percentage(rendimento_perc_nominale)}")
         st.write(f"• **CAGR (Nominale): {format_percentage(results['cagr_nominale'] * 100)}**")
         st.write(f"• **CAGR (Reale): {format_percentage(results['cagr_reale'] * 100)}**")
-        if results['totale_costi_mutuo'] > 0:
-            st.write("**🏦 Analisi Mutuo:**")
-            mortgage_col1, mortgage_col2 = st.columns(2)
-            with mortgage_col1:
-                st.write(f"• **Totale Costi Mutuo {params['anni_investimento']} anni: {format_currency(results['totale_costi_mutuo'])}**")
-                rata_annua = params['rata_mutuo_mensile'] * 12
-                percentuale_rata = (rata_annua / params['affitto_lordo']) * 100 if params['affitto_lordo'] > 0 else 0
-                st.write(f"• Rata annua vs Affitto iniziale: {format_percentage(percentuale_rata)}")
-                if params['anni_restanti_mutuo'] < params['anni_investimento']:
-                    anni_liberi = params['anni_investimento'] - params['anni_restanti_mutuo']
-                    st.success(f"✅ Ultimi {anni_liberi} anni senza rata")
-            with mortgage_col2:
-                if percentuale_rata < 50:
-                    st.success("✅ Mutuo sostenibile (< 50% affitto)")
-                elif percentuale_rata < 70:
-                    st.warning("⚠️ Mutuo impegnativo (50-70% affitto)")
-                else:
-                    st.error("🚨 Mutuo rischioso (> 70% affitto)")
-                rendimento_senza_mutuo = results['rendimento_totale_nominale'] + results['totale_costi_mutuo']
-                miglioramento = rendimento_senza_mutuo - results['rendimento_totale_nominale']
-                st.info(f"📊 Rendimento senza mutuo: +{format_currency(miglioramento)}")
+
+    # Sezione Mutuo (se presente)
+    if results['totale_costi_mutuo'] > 0:
+        st.write("**🏦 Analisi Mutuo:**")
+        mortgage_col1, mortgage_col2 = st.columns(2)
+        
+        with mortgage_col1:
+            st.write(f"• **Totale Costi Mutuo {params['anni_investimento']} anni: {format_currency(results['totale_costi_mutuo'])}**")
+            rata_annua = params['rata_mutuo_mensile'] * 12
+            percentuale_rata = (rata_annua / params['affitto_lordo']) * 100 if params['affitto_lordo'] > 0 else 0
+            st.write(f"• Rata annua vs Affitto iniziale: {format_percentage(percentuale_rata)}")
+            
+            if params['anni_restanti_mutuo'] < params['anni_investimento']:
+                anni_liberi = params['anni_investimento'] - params['anni_restanti_mutuo']
+                st.success(f"✅ Ultimi {anni_liberi} anni senza rata")
+                
+        with mortgage_col2:
+            # Valutazione sostenibilità mutuo
+            if percentuale_rata < 50:
+                st.success("✅ Mutuo sostenibile (< 50% affitto)")
+            elif percentuale_rata < 70:
+                st.warning("⚠️ Mutuo impegnativo (50-70% affitto)")
+            else:
+                st.error("🚨 Mutuo rischioso (> 70% affitto)")
+            
+            # Confronto rendimenti con/senza mutuo
+            miglioramento = results['rendimento_totale_senza_mutuo_nominale'] - results['rendimento_totale_nominale']
+            st.info(f"📊 Rendimento senza mutuo: +{format_currency(miglioramento)}")
+            
+        # CAGR senza mutuo
+        st.write("**📊 CAGR Senza Mutuo (per confronto):**")
+        cagr_col1, cagr_col2 = st.columns(2)
+        with cagr_col1:
+            st.write(f"• **CAGR Nominale: {format_percentage(results['cagr_senza_mutuo_nominale'] * 100)}**")
+        with cagr_col2:
+            st.write(f"• **CAGR Reale: {format_percentage(results['cagr_senza_mutuo_reale'] * 100)}**")
 
     st.write("**📋 Riepilogo Investimento:**")
     summary_col1, summary_col2 = st.columns(2)
+    
     with summary_col1:
-        investimento_totale = params['valore_immobile'] + results['commissione_iniziale'] + - results['commissione_finale']
         capitale_finale_affitti_nominale = results['valore_finale_nominale'] + results['totale_affitti_netti'] - results['commissione_iniziale'] - results['commissione_finale']
         capitale_finale_affitti_reale = results['valore_finale_reale'] + results['totale_affitti_netti_reale'] - results['commissione_iniziale'] - results['commissione_finale']
-        # st.write(f"• **Investimento Totale: {format_currency(investimento_totale)}**")
+        
         st.write(f"• **Capitale Finale + Affitti (Nominale): {format_currency(capitale_finale_affitti_nominale)}**")
         st.write(f"• **Capitale Finale + Affitti (Reale): {format_currency(capitale_finale_affitti_reale)}**")
+        
         if results['commissione_iniziale'] > 0 or results['commissione_finale'] > 0:
             commissioni_totali = results['commissione_iniziale'] + results['commissione_finale']
             st.write(f"• *(Già detratte commissioni totali: {format_currency(commissioni_totali)})*")
+            
+        # Confronto investimento iniziale vs finale
+        investimento_iniziale = params['valore_immobile']
+        guadagno_totale_nominale = capitale_finale_affitti_nominale - investimento_iniziale
+        guadagno_totale_reale = capitale_finale_affitti_reale - investimento_iniziale
+        
+        st.write(f"• **Guadagno Totale (Nominale): {format_currency(guadagno_totale_nominale)}**")
+        st.write(f"• **Guadagno Totale (Reale): {format_currency(guadagno_totale_reale)}**")
+        
     with summary_col2:
         st.info("""
-**📝 Nota:** Questo calcolo è basato su assunzioni semplificate. I mercati immobiliari reali sono influenzati da
-numerosi fattori non considerati (domanda/offerta locale, normative, condizioni economiche, ecc.).
-Consulta sempre un consulente finanziario prima di investire.
+**📝 Nota sui Valori Reali vs Nominali:**
+- **Nominale**: Valore futuro in euro correnti
+- **Reale**: Valore attuale considerando l'inflazione
+- Se l'inflazione è del 2% annuo, €100 fra 10 anni valgono circa €82 di oggi
 """)
+        
+        # Avviso se i valori reali sono molto diversi dai nominali
+        differenza_perc = abs((capitale_finale_affitti_reale - capitale_finale_affitti_nominale) / capitale_finale_affitti_nominale * 100) if capitale_finale_affitti_nominale != 0 else 0
+        if differenza_perc > 20:
+            st.warning(f"⚠️ L'inflazione riduce il valore reale del {format_percentage(differenza_perc)} rispetto al nominale")
 
 def render_real_estate_section():
     st.subheader("🏘️ Analisi Investimento Immobiliare")
