@@ -1,216 +1,239 @@
 import streamlit as st
 from utils import format_currency, format_percentage
 from calcoli import calculate_real_estate_investment_improved
-from i18n import get_text, render_language_selector
 
 def render_header():
-    render_language_selector()
-    st.title(get_text('app_title'))
+    st.title("🏠 Calcolatore Investimenti Immobiliari")
     st.markdown("---")
-    st.markdown(f"### {get_text('app_subtitle')}")
+    st.markdown("### 💡 Analisi Completa con Rivalutazione, Inflazione e Adeguamento Affitti")
     
 def render_footer():
     st.markdown("---")
-    st.markdown(f"### {get_text('disclaimer_title')}")
-    st.error(f"""
-{get_text('legal_notice')}
-{get_text('educational_purpose')}
-{get_text('not_financial_advice')}
-{get_text('data_accuracy')}
-{get_text('responsibility')}
-{get_text('recommendation')}
-{get_text('privacy')}
+    st.markdown("### ⚠️ **DISCLAIMER IMPORTANTE**")
+    st.error("""
+**🚨 AVVISO LEGALE - LEGGERE ATTENTAMENTE**
+📚 **Scopo Didattico**: Questa applicazione è stata sviluppata esclusivamente a scopo educativo e dimostrativo per illustrare concetti di investimento immobiliare.
+🚫 **Non è Consulenza Finanziaria**: I calcoli e le informazioni fornite NON costituiscono consigli di investimento, raccomandazioni immobiliari o consulenza professionale.
+⚠️ **Accuratezza dei Dati**: I valori calcolati potrebbero essere imprecisi o non riflettere la complessità del mercato immobiliare reale.
+📊 **Responsabilità**: Lo sviluppatore declina ogni responsabilità per decisioni di investimento basate sui risultati ottenuti.
+💡 **Raccomandazione**: Consultare SEMPRE un consulente immobiliare e finanziario qualificato prima di investire.
+🔒 **Privacy**: I dati inseriti non vengono salvati o trasmessi.
 """)
     st.markdown("---")
-    st.markdown(f"### {get_text('technical_notes')}")
-    st.info(f"""
-{get_text('appreciation_note')}
-{get_text('rent_adjustment_note')}
-{get_text('nominal_values_note')}
-{get_text('real_values_note')}
-{get_text('cagr_note')}
-{get_text('property_tax_note')}
+    st.markdown("### 📝 Note Tecniche:")
+    st.info("""
+- **Rivalutazione**: Apprezzamento annuo del valore dell'immobile
+- **Adeguamento Affitto**: Modalità di aggiornamento del canone nel tempo
+- **Valori Nominali**: Senza considerare l'inflazione
+- **Valori Reali**: Considerando l'effetto dell'inflazione sul potere d'acquisto
+- **CAGR**: Tasso di crescita annuale composto (metrica principale per confronti)
+- **ROI**: Return on Investment - rendimento totale sull'investimento iniziale
+- **ROE**: Return on Equity - rendimento sul capitale proprio (importante con leverage)
+- **Tassa di Proprietà**: Calcolo semplificato basato sul valore dell'immobile (nella realtà dipende dalla rendita catastale)
 """)
     st.markdown("---")
-    st.markdown(get_text('developed_by'))
+    st.markdown("*Sviluppata da **AS** con la collaborazione di **KIM** 🐱 - Versione per fini didattici*")
 
 def display_real_estate_results_simplified(results, params):
-    st.success(f"**{get_text('results_title')}**")
+    st.success("**🎯 Risultati Analisi Investimento Immobiliare**")
 
     res_col1, res_col2, res_col3 = st.columns(3)
 
     with res_col1:
-        st.write(f"**{get_text('property_value_section')}**")
-        st.write(f"{get_text('initial_value')}{format_currency(params['valore_immobile'])}")
-        st.write(f"{get_text('final_nominal_value')}{format_currency(results['valore_finale_nominale'])}**")
-        st.write(f"{get_text('final_real_value')}{format_currency(results['valore_finale_reale'])}**")
-        st.write(f"{get_text('capital_gain_nominal')}{format_currency(results['guadagno_capitale_nominale'])}")
+        st.write("**🏠 Valore Immobile:**")
+        st.write(f"• Valore Iniziale: {format_currency(params['valore_immobile'])}")
+        st.write(f"• **Valore Finale (Nominale): {format_currency(results['valore_finale_nominale'])}**")
+        st.write(f"• **Valore Finale (Reale): {format_currency(results['valore_finale_reale'])}**")
+        st.write(f"• Plusvalenza (Nominale): {format_currency(results['guadagno_capitale_nominale'])}")
         rivalutazione_totale = ((results['valore_finale_nominale']/params['valore_immobile'] - 1) * 100) if params['valore_immobile'] > 0 else 0
-        st.write(f"{get_text('total_appreciation')}{format_percentage(rivalutazione_totale)}")
+        st.write(f"• Rivalutazione Totale: {format_percentage(rivalutazione_totale)}")
 
     with res_col2:
-        st.write(f"**{get_text('rent_analysis')}**")
-        st.write(f"{get_text('initial_rent')}{format_currency(params['affitto_lordo'])}")
-        st.write(f"{get_text('final_rent')}{format_currency(results['affitto_finale'])}**")
-        st.write(f"{get_text('total_rent_growth')}{format_percentage(results['crescita_affitto_totale'])}**")
-        st.write(f"{get_text('total_net_rents_nominal')}{format_currency(results['totale_affitti_netti'])}**")
-        st.write(f"{get_text('total_net_rents_real')}{format_currency(results['totale_affitti_netti_reale'])}**")
+        st.write("**💰 Analisi Affitti:**")
+        st.write(f"• Affitto Iniziale: {format_currency(params['affitto_lordo'])}")
+        st.write(f"• **Affitto Finale: {format_currency(results['affitto_finale'])}**")
+        st.write(f"• **Crescita Affitto Totale: {format_percentage(results['crescita_affitto_totale'])}**")
+        st.write(f"• **Totale Affitti Netti (Nominale): {format_currency(results['totale_affitti_netti'])}**")
+        st.write(f"• **Totale Affitti Netti (Reale): {format_currency(results['totale_affitti_netti_reale'])}**")
         media_affitti_mensile_reale = results['totale_affitti_netti_reale'] / (12 * params['anni_investimento'])
-        st.write(f"{get_text('average_monthly_real')}{format_currency(media_affitti_mensile_reale)}**")
-        st.write(f"{get_text('adjustment_mode')}{params['tipo_adeguamento']}**")
+        st.write(f"• **Media Affitti Mensili Reale: {format_currency(media_affitti_mensile_reale)}**")
+        st.write(f"• Modalità Adeguamento: **{params['tipo_adeguamento']}**")
 
     with res_col3:
-        st.write(f"**{get_text('total_return')}**")
-        st.write(f"{get_text('total_return_nominal')}{format_currency(results['rendimento_totale_nominale'])}**")
-        st.write(f"{get_text('total_return_real')}{format_currency(results['rendimento_totale_reale'])}**")
+        st.write("**📈 Rendimento Totale:**")
+        st.write(f"• **Rendimento Totale (Nominale): {format_currency(results['rendimento_totale_nominale'])}**")
+        st.write(f"• **Rendimento Totale (Reale): {format_currency(results['rendimento_totale_reale'])}**")
         if results['totale_costi_mutuo'] > 0:
-            st.write(f"{get_text('total_mortgage_costs')}{format_currency(results['totale_costi_mutuo'])}**")
+            st.write(f"• **Totale Costi Mutuo: {format_currency(results['totale_costi_mutuo'])}**")
         if results['commissione_iniziale'] > 0 or results['commissione_finale'] > 0:
-            st.write(f"{get_text('initial_commissions')}{format_currency(results['commissione_iniziale'])}**")
-            st.write(f"{get_text('final_commissions')}{format_currency(results['commissione_finale'])}**")
+            st.write(f"• **Commissioni Iniziali: {format_currency(results['commissione_iniziale'])}**")
+            st.write(f"• **Commissioni Finali: {format_currency(results['commissione_finale'])}**")
         rendimento_perc_nominale = (results['rendimento_totale_nominale'] / params['valore_immobile']) * 100 if params['valore_immobile'] > 0 else 0
         rendimento_perc_reale = (results['rendimento_totale_reale'] / params['valore_immobile']) * 100 if params['valore_immobile'] > 0 else 0
-        st.write(f"{get_text('return_perc_nominal')}{format_percentage(rendimento_perc_nominale)}")
-        st.write(f"{get_text('cagr_nominal')}{format_percentage(results['cagr_nominale'] * 100)}**")
-        st.write(f"{get_text('cagr_real')}{format_percentage(results['cagr_reale'] * 100)}**")
-        
-        if results['totale_costi_mutuo'] > 0:
-            st.write(f"**{get_text('mortgage_analysis')}**")
-            mortgage_col1, mortgage_col2 = st.columns(2)
-            with mortgage_col1:
-                st.write(f"{get_text('total_mortgage_costs_years')}{params['anni_investimento']}{get_text(' anni: ')}{format_currency(results['totale_costi_mutuo'])}**")
-                rata_annua = params['rata_mutuo_mensile'] * 12
-                percentuale_rata = (rata_annua / params['affitto_lordo']) * 100 if params['affitto_lordo'] > 0 else 0
-                st.write(f"{get_text('annual_vs_initial_rent')}{format_percentage(percentuale_rata)}")
-                if params['anni_restanti_mutuo'] < params['anni_investimento']:
-                    anni_liberi = params['anni_investimento'] - params['anni_restanti_mutuo']
-                    st.success(f"✅ {get_text('mortgage_free_years')}{anni_liberi}{get_text(' anni senza rata')}")
-            with mortgage_col2:
-                if percentuale_rata < 50:
-                    st.success(get_text('sustainable_mortgage'))
-                elif percentuale_rata < 70:
-                    st.warning(get_text('challenging_mortgage'))
-                else:
-                    st.error(get_text('risky_mortgage'))
-                rendimento_senza_mutuo = results['rendimento_totale_nominale'] + results['totale_costi_mutuo']
-                miglioramento = rendimento_senza_mutuo - results['rendimento_totale_nominale']
-                st.info(f"{get_text('return_without_mortgage')}{format_currency(miglioramento)}")
+        st.write(f"• Rendimento % (Nominale): {format_percentage(rendimento_perc_nominale)}")
 
-    st.write(f"**{get_text('investment_summary')}**")
+    # Nuova sezione per le metriche di performance
+    st.markdown("---")
+    st.write("**📊 Metriche di Performance:**")
+    
+    # Prima riga: CAGR (metrica principale)
+    cagr_col1, cagr_col2, cagr_col3 = st.columns(3)
+    with cagr_col1:
+        st.metric("🏆 CAGR Nominale", f"{format_percentage(results['cagr_nominale'] * 100)}")
+        st.caption("✅ Metrica principale per confronti")
+    with cagr_col2:
+        st.metric("🏆 CAGR Reale", f"{format_percentage(results['cagr_reale'] * 100)}")
+        st.caption("✅ Considerando inflazione")
+    with cagr_col3:
+        st.write("**💡 Perché CAGR?**")
+        st.info("Il CAGR normalizza i rendimenti su base annua e permette confronti diretti con altri investimenti")
+
+    # Seconda riga: ROI e ROE
+    metrics_col1, metrics_col2 = st.columns(2)
+    
+    with metrics_col1:
+        st.write("**📈 ROI (Return on Investment):**")
+        st.write(f"• ROI Totale Nominale: {format_percentage(results['roi_nominale'])}")
+        st.write(f"• **ROI Totale Reale: {format_percentage(results['roi_reale'])}**")
+        roi_annualizzato = (((1 + results['roi_reale']/100) ** (1/params['anni_investimento'])) - 1) * 100
+        st.write(f"• ROI Annualizzato Reale: {format_percentage(roi_annualizzato)}")
+        st.write(f"• Investimento Iniziale: {format_currency(results['investimento_iniziale'])}")
+        
+    with metrics_col2:
+        st.write("**🎯 ROE (Return on Equity):**")
+        st.write(f"• ROE Totale Nominale: {format_percentage(results['roe_nominale'])}")  
+        st.write(f"• **ROE Totale Reale: {format_percentage(results['roe_reale'])}**")
+        roe_annualizzato = (((1 + results['roe_reale']/100) ** (1/params['anni_investimento'])) - 1) * 100
+        st.write(f"• ROE Annualizzato Reale: {format_percentage(roe_annualizzato)}")
+        st.info(results['roe_note'])
+
+    # Analisi mutuo se presente
+    if results['totale_costi_mutuo'] > 0:
+        st.write("**🏦 Analisi Mutuo:**")
+        mortgage_col1, mortgage_col2 = st.columns(2)
+        with mortgage_col1:
+            st.write(f"• **Totale Costi Mutuo {params['anni_investimento']} anni: {format_currency(results['totale_costi_mutuo'])}**")
+            rata_annua = params['rata_mutuo_mensile'] * 12
+            percentuale_rata = (rata_annua / params['affitto_lordo']) * 100 if params['affitto_lordo'] > 0 else 0
+            st.write(f"• Rata annua vs Affitto iniziale: {format_percentage(percentuale_rata)}")
+            if params['anni_restanti_mutuo'] < params['anni_investimento']:
+                anni_liberi = params['anni_investimento'] - params['anni_restanti_mutuo']
+                st.success(f"✅ Ultimi {anni_liberi} anni senza rata")
+        with mortgage_col2:
+            if percentuale_rata < 50:
+                st.success("✅ Mutuo sostenibile (< 50% affitto)")
+            elif percentuale_rata < 70:
+                st.warning("⚠️ Mutuo impegnativo (50-70% affitto)")
+            else:
+                st.error("🚨 Mutuo rischioso (> 70% affitto)")
+            rendimento_senza_mutuo = results['rendimento_totale_nominale'] + results['totale_costi_mutuo']
+            miglioramento = rendimento_senza_mutuo - results['rendimento_totale_nominale']
+            st.info(f"📊 Rendimento senza mutuo: +{format_currency(miglioramento)}")
+
+    st.write("**📋 Riepilogo Investimento:**")
     summary_col1, summary_col2 = st.columns(2)
     with summary_col1:
         investimento_totale = params['valore_immobile'] + results['commissione_iniziale'] + - results['commissione_finale']
         capitale_finale_affitti_nominale = results['valore_finale_nominale'] + results['totale_affitti_netti'] - results['commissione_iniziale'] - results['commissione_finale']
         capitale_finale_affitti_reale = results['valore_finale_reale'] + results['totale_affitti_netti_reale'] - results['commissione_iniziale'] - results['commissione_finale']
-        st.write(f"{get_text('final_capital_rents_nominal')}{format_currency(capitale_finale_affitti_nominale)}**")
-        st.write(f"{get_text('final_capital_rents_real')}{format_currency(capitale_finale_affitti_reale)}**")
+        st.write(f"• **Capitale Finale + Affitti (Nominale): {format_currency(capitale_finale_affitti_nominale)}**")
+        st.write(f"• **Capitale Finale + Affitti (Reale): {format_currency(capitale_finale_affitti_reale)}**")
         if results['commissione_iniziale'] > 0 or results['commissione_finale'] > 0:
             commissioni_totali = results['commissione_iniziale'] + results['commissione_finale']
-            st.write(f"{get_text('total_commissions_deducted')}{format_currency(commissioni_totali)})*")
+            st.write(f"• *(Già detratte commissioni totali: {format_currency(commissioni_totali)})*")
     with summary_col2:
-        st.info(get_text('calculation_note'))
+        st.info("""
+**📝 Nota:** Questo calcolo è basato su assunzioni semplificate. I mercati immobiliari reali sono influenzati da
+numerosi fattori non considerati (domanda/offerta locale, normative, condizioni economiche, ecc.).
+Consulta sempre un consulente finanziario prima di investire.
+""")
 
 def render_real_estate_section():
-    st.subheader(get_text('real_estate_analysis'))
-    st.info(get_text('real_estate_info'))
+    st.subheader("🏘️ Analisi Investimento Immobiliare")
+    st.info("💡 Stima con rivalutazione, inflazione, mutuo e adeguamento affitti personalizzabile")
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.write(f"**{get_text('base_params')}**")
+        st.write("**🏠 Parametri Base Immobile**")
         valore_immobile = st.number_input(
-            get_text('property_value'), min_value=5000.00, value=200000.00, step=5000.00, key="real_estate_value")
+            "Valore Immobile (€)", min_value=5000.00, value=200000.00, step=5000.00, key="real_estate_value")
         affitto_lordo = st.number_input(
-            get_text('annual_rent'), min_value=0.00, value=12000.00, step=100.00, key="real_estate_rent")
+            "Affitto Lordo Annuo (€)", min_value=0.00, value=12000.00, step=100.00, key="real_estate_rent")
         rivalutazione_annua = st.number_input(
-            get_text('annual_appreciation'), min_value=0.0, max_value=50.0, value=2.0, step=0.1, key="real_estate_appreciation")
+            "Rivalutazione Annua (%)", min_value=0.0, max_value=50.0, value=2.0, step=0.1, key="real_estate_appreciation")
         anni_investimento = st.number_input(
-            get_text('investment_years'), min_value=1, value=10, step=1, key="real_estate_years")
-        st.write(f"**{get_text('one_time_commissions')}**")
+            "Anni di Investimento", min_value=1, value=10, step=1, key="real_estate_years")
+        st.write("**Commissioni una tantum**")
         commissione_iniziale = st.number_input(
-            get_text('initial_commission'), min_value=0.00, value=0.00, step=100.00, key="real_estate_initial_commission",
-            help=get_text('initial_commission_help'))
+            "Commissione Iniziale (€)", min_value=0.00, value=0.00, step=100.00, key="real_estate_initial_commission",
+            help="Costi di acquisto una tantum (es. agenzia, notaio)")
         commissione_finale = st.number_input(
-            get_text('final_commission'), min_value=0.00, value=0.00, step=100.00, key="real_estate_final_commission",
-            help=get_text('final_commission_help'))
-    
+            "Commissione Finale (€)", min_value=0.00, value=0.00, step=100.00, key="real_estate_final_commission",
+            help="Costi di vendita una tantum (es. agenzia)")
     with col2:
-        st.write(f"**{get_text('costs_expenses')}**")
+        st.write("**💸 Costi e Spese**")
         costi_assicurazione_euro = st.number_input(
-            get_text('insurance_costs'), min_value=0.00, max_value=10000.00, value=250.00, step=50.00,
-            key="real_estate_insurance_euro", help=get_text('insurance_help'))
+            "Costi Assicurazione Annui (€)", min_value=0.00, max_value=10000.00, value=250.00, step=50.00,
+            key="real_estate_insurance_euro", help="Costi fissi annui per assicurazione. Verranno adeguati all'inflazione.")
         costi_gestione_euro = st.number_input(
-            get_text('annual_fixed_costs'), min_value=0.00, max_value=100000.00, value=250.00, step=50.00,
-            key="real_estate_annual_costs_euro", help=get_text('annual_costs_help'))
+            "Costi Fissi Annui (€)", min_value=0.00, max_value=100000.00, value=250.00, step=50.00,
+            key="real_estate_annual_costs_euro", help="Costi fissi annui (es. amministratore, pulizie, piccole manutenzioni). Verranno adeguati all'inflazione.")
         manutenzione_straordinaria_perc = st.number_input(
-            get_text('extraordinary_maintenance'), min_value=0.0, max_value=99.0, value=1.0, step=0.1, key="real_estate_maintenance")
+            "Manutenzione Straordinaria Annua (%)", min_value=0.0, max_value=99.0, value=1.0, step=0.1, key="real_estate_maintenance")
         tassazione_affitti_perc = st.number_input(
-            get_text('rent_taxation'), min_value=0.0, max_value=99.0, value=21.0, step=1.0, key="real_estate_tax_rate")
+            "Tassazione su Affitti (%)", min_value=0.0, max_value=99.0, value=21.0, step=1.0, key="real_estate_tax_rate")
         tassa_catastale_perc = st.number_input(
-            get_text('property_tax'), min_value=0.0, max_value=99.0, value=0.8, step=0.1,
-            key="real_estate_cadastral_tax", help=get_text('property_tax_help'))
-        st.write(f"**{get_text('mortgage_section')}**")
+            "Tassa di proprietà (% valore immobile)", min_value=0.0, max_value=99.0, value=0.8, step=0.1,
+            key="real_estate_cadastral_tax",
+            help="⚠️ Valore semplificato - Il calcolo della tassa di proprietà in questa applicazione è basato sul **valore dell'immobile**. È importante sapere che per il calcolo ufficiale dell'imposta in Italia è legata alla **rendita catastale** e al **coefficiente catastale** dell'immobile.")
+        st.write("**🏦 Mutuo (se presente)**")
         rata_mutuo_mensile = st.number_input(
-            get_text('monthly_mortgage'), min_value=0.00, max_value=10000.00, value=0.00, step=50.00, key="real_estate_mortgage_payment")
+            "Rata Mutuo Mensile (€)", min_value=0.00, max_value=10000.00, value=0.00, step=50.00, key="real_estate_mortgage_payment")
         anni_restanti_mutuo = st.number_input(
-            get_text('remaining_mortgage_years'), min_value=0, max_value=50, value=0, step=1, key="real_estate_mortgage_years")
-    
+            "Anni Restanti Mutuo", min_value=0, max_value=50, value=0, step=1, key="real_estate_mortgage_years")
     with col3:
-        st.write(f"**{get_text('economic_params')}**")
+        st.write("**📊 Parametri Economici e Adeguamenti**")
         periodo_sfitto_perc = st.number_input(
-            get_text('vacancy_period'), min_value=0.0, max_value=100.0, value=5.0, step=1.0, key="real_estate_vacancy")
+            "Periodo Annuo Sfitto (%)", min_value=0.0, max_value=100.0, value=5.0, step=1.0, key="real_estate_vacancy")
         inflazione_perc = st.number_input(
-            get_text('annual_inflation'), min_value=0.0, max_value=100.0, value=2.0, step=0.1, key="real_estate_inflation")
-        
-        # Translate adjustment options
-        adjustment_options = [get_text('property_value_adj'), get_text('inflation_adj'), get_text('no_adjustment')]
+            "Inflazione Annua (%)", min_value=0.0, max_value=100.0, value=2.0, step=0.1, key="real_estate_inflation")
         tipo_adeguamento = st.selectbox(
-            get_text('rent_adjustment_mode'), adjustment_options, index=0,
-            key="real_estate_adjustment_type", help=get_text('rent_adjustment_help'))
-        
+            "Modalità Adeguamento Affitto", ["Valore Immobile", "Inflazione", "Nessun Adeguamento"], index=0,
+            key="real_estate_adjustment_type", help="Scegli come adeguare l'affitto nel tempo")
         adeguamento_affitto_anni = st.number_input(
-            get_text('rent_adjustment_years'), min_value=1, max_value=99, value=4, step=1,
-            key="real_estate_rent_adjustment_years", help=get_text('rent_adjustment_years_help'))
+            "Adeguamento Affitto ogni (Anni)", min_value=1, max_value=99, value=4, step=1,
+            key="real_estate_rent_adjustment_years", help="Ogni quanti anni l'affitto viene adeguato secondo la modalità scelta")
 
         if rata_mutuo_mensile > 0:
             rata_annua_mutuo = rata_mutuo_mensile * 12
-            st.info(f"{get_text('annual_mortgage_rate')}{format_currency(rata_annua_mutuo)}")
+            st.info(f"💰 Rata Annua Mutuo: {format_currency(rata_annua_mutuo)}")
             if anni_restanti_mutuo > 0:
                 costo_totale_mutuo = rata_annua_mutuo * min(anni_restanti_mutuo, anni_investimento)
-                st.info(f"{get_text('total_mortgage_cost')}{format_currency(costo_totale_mutuo)}")
-        
-        if tipo_adeguamento == get_text('property_value_adj'):
-            st.info(get_text('property_value_adj_info'))
-        elif tipo_adeguamento == get_text('inflation_adj'):
-            st.info(get_text('inflation_adj_info'))
+                st.info(f"💸 Costo Totale Mutuo nel Periodo: {format_currency(costo_totale_mutuo)}")
+        if tipo_adeguamento == "Valore Immobile":
+            st.info("🏠 Affitto adeguato al valore rivalutato dell'immobile")
+        elif tipo_adeguamento == "Inflazione":
+            st.info("📈 Affitto adeguato al tasso di inflazione")
         else:
-            st.warning(get_text('no_adj_info'))
+            st.warning("⚡ Affitto rimane fisso per tutto il periodo")
 
-    st.write(f"**{get_text('adjustment_notes')}**")
+    st.write("**ℹ️ Note sui Metodi di Adeguamento e Costi:**")
     note_col1, note_col2 = st.columns(2)
     with note_col1:
-        st.write(get_text('property_value_note'))
-        st.write(get_text('inflation_note'))
-        st.write(get_text('no_adjustment_note'))
-        st.write(get_text('management_costs_note'))
-        st.write(get_text('insurance_costs_note'))
+        st.write("• **Valore Immobile**: L'affitto mantiene la stessa % del valore immobile")
+        st.write("• **Inflazione**: L'affitto cresce con l'inflazione")
+        st.write("• **Nessun Adeguamento**: Affitto fisso (perdita potere d'acquisto)")
+        st.write("• **Costi Gestione**: Importo fisso adeguato annualmente all'inflazione")
+        st.write("• **Costi Assicurazione**: Importo fisso adeguato annualmente all'inflazione")
     with note_col2:
-        st.write(get_text('percentage_costs_note'))
-        st.write(get_text('maintenance_taxes_note'))
-        st.write(get_text('fixed_costs_note'))
-        st.write(get_text('mortgage_note'))
-        st.write(get_text('fixed_mortgage_note'))
+        st.write("• Costi percentuali si aggiornano sempre al valore dell'immobile")
+        st.write("• Manutenzione e tasse calcolate su valore corrente")
+        st.write("• Assicurazione e gestione: costi fissi + inflazione")
+        st.write("• **Mutuo**: Se presente, viene considerato fino alla scadenza")
+        st.write("• Rate mutuo sono fisse e non si adeguano all'inflazione")
 
-    if st.button(get_text('calculate_button'), key="calc_real_estate"):
+    if st.button("🏠 Calcola Investimento Immobiliare", key="calc_real_estate"):
         try:
-            # Map translated adjustment type back to original values
-            tipo_adeguamento_mapped = tipo_adeguamento
-            if tipo_adeguamento == get_text('property_value_adj'):
-                tipo_adeguamento_mapped = "Valore Immobile"
-            elif tipo_adeguamento == get_text('inflation_adj'):
-                tipo_adeguamento_mapped = "Inflazione"
-            elif tipo_adeguamento == get_text('no_adjustment'):
-                tipo_adeguamento_mapped = "Nessun Adeguamento"
-            
             params = {
                 'valore_immobile': valore_immobile,
                 'affitto_lordo': affitto_lordo,
@@ -226,13 +249,13 @@ def render_real_estate_section():
                 'periodo_sfitto_perc': periodo_sfitto_perc,
                 'inflazione_perc': inflazione_perc,
                 'adeguamento_affitto_anni': adeguamento_affitto_anni,
-                'tipo_adeguamento': tipo_adeguamento_mapped,
+                'tipo_adeguamento': tipo_adeguamento,
                 'commissione_iniziale': commissione_iniziale,
                 'commissione_finale': commissione_finale
             }
             results = calculate_real_estate_investment_improved(params)
             display_real_estate_results_simplified(results, params)
         except Exception as e:
-            st.error(f"{get_text('calculation_error')}{str(e)}")
-            st.error(get_text('check_values'))
+            st.error(f"❌ Errore nel calcolo immobiliare: {str(e)}")
+            st.error("Verifica che tutti i valori siano corretti.")
             st.exception(e)
