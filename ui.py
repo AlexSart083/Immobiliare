@@ -99,16 +99,16 @@ def display_real_estate_results_simplified(results, params):
         st.write("**📈 ROI (Return on Investment):**")
         st.write(f"• ROI Totale Nominale: {format_percentage(results['roi_nominale'])}")
         st.write(f"• **ROI Totale Reale: {format_percentage(results['roi_reale'])}**")
-        roi_annualizzato = (((1 + results['roi_reale']/100) ** (1/params['anni_investimento'])) - 1) * 100
-        st.write(f"• ROI Annualizzato Reale: {format_percentage(roi_annualizzato)}")
+        roi_annualizzato = (((1 + results['roi_nominale']/100) ** (1/params['anni_investimento'])) - 1) * 100
+        st.write(f"• ROI Annualizzato Nominale: {format_percentage(roi_annualizzato)}")
         st.write(f"• Investimento Iniziale: {format_currency(results['investimento_iniziale'])}")
         
     with metrics_col2:
         st.write("**🎯 ROE (Return on Equity):**")
         st.write(f"• ROE Totale Nominale: {format_percentage(results['roe_nominale'])}")  
         st.write(f"• **ROE Totale Reale: {format_percentage(results['roe_reale'])}**")
-        roe_annualizzato = (((1 + results['roe_reale']/100) ** (1/params['anni_investimento'])) - 1) * 100
-        st.write(f"• ROE Annualizzato Reale: {format_percentage(roe_annualizzato)}")
+        roe_annualizzato = (((1 + results['roe_nominale']/100) ** (1/params['anni_investimento'])) - 1) * 100
+        st.write(f"• ROE Annualizzato Nominale: {format_percentage(roe_annualizzato)}")
         st.info(results['roe_note'])
 
     # Analisi mutuo se presente
