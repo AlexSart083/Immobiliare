@@ -122,6 +122,8 @@ TRANSLATIONS = {
         'roe_nominal_total': '• ROE Totale Nominale: ',
         'roe_real_total': '• **ROE Totale Reale: ',
         'roe_annualized_real': '• ROE Annualizzato Reale: ',
+        'roi_annualized_nominal': '• ROI Annualizzato Nominale: ',
+        'roe_annualized_nominal': '• ROE Annualizzato Nominale: ',        
         
         'mortgage_analysis': '🏦 Analisi Mutuo:',
         'total_mortgage_costs_years': '• **Totale Costi Mutuo ',
@@ -288,6 +290,8 @@ TRANSLATIONS = {
         'roe_nominal_total': '• Total Nominal ROE: ',
         'roe_real_total': '• **Total Real ROE: ',
         'roe_annualized_real': '• Annualized Real ROE: ',
+        'roi_annualized_nominal': '• Annualized Nominal ROI: ',
+        'roe_annualized_nominal': '• Annualized Nominal ROE: ',        
         
         'mortgage_analysis': '🏦 Mortgage Analysis:',
         'total_mortgage_costs_years': '• **Total Mortgage Costs ',
