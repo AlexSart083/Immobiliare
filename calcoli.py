@@ -1,3 +1,5 @@
+from utils import format_currency
+
 def calculate_roi_roe_metrics(params, rendimento_totale_nominale, rendimento_totale_reale):
     """
     Calcola ROI e ROE per l'investimento immobiliare
@@ -196,4 +198,5 @@ def calculate_real_estate_investment_improved(params):
         'roe_note': roi_roe_metrics['roe_note'],
         'investimento_iniziale': roi_roe_metrics['investimento_iniziale']
     }
+
 
