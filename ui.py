@@ -31,8 +31,8 @@ def render_footer():
 {get_text('nominal_values_note')}
 {get_text('real_values_note')}
 - **CAGR**: {get_text('cagr_note')}
-- **ROI**: Return on Investment - rendimento totale sull'investimento iniziale
-- **ROE**: Return on Equity - rendimento sul capitale proprio (importante con leverage)
+- **ROI**: {get_text('roi_note')}
+- **ROE**: {get_text('roe_note')}
 {get_text('property_tax_note')}
 """)
     st.markdown("---")
