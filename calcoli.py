@@ -1,26 +1,40 @@
 def calculate_roi_roe_metrics(params, rendimento_totale_nominale, rendimento_totale_reale):
     """
     Calcola ROI e ROE per l'investimento immobiliare
+    ROI = rendimento sull'investimento totale (senza considerare il finanziamento)
+    ROE = rendimento sul capitale proprio (considerando il leverage del mutuo)
     """
-    # Investimento iniziale totale
+    # Investimento iniziale totale (quello che effettivamente hai speso)
     investimento_iniziale = params['valore_immobile'] + params['commissione_iniziale']
     
-    # ROI Nominale e Reale
-    roi_nominale = (rendimento_totale_nominale / investimento_iniziale) * 100 if investimento_iniziale > 0 else 0
-    roi_reale = (rendimento_totale_reale / investimento_iniziale) * 100 if investimento_iniziale > 0 else 0
-    
-    # Calcolo ROE (considerando il leverage del mutuo)
     if params['rata_mutuo_mensile'] > 0:
-        # Con mutuo: capitale proprio = investimento iniziale
-        # (assumendo che l'utente abbia versato la differenza tra valore e mutuo)
-        capitale_proprio = investimento_iniziale
-        roe_nominale = roi_nominale  # Se non conosciamo l'importo del mutuo, ROE = ROI
-        roe_reale = roi_reale
+        # CON MUTUO: ROI e ROE sono diversi
         
-        # Nota: per un calcolo ROE preciso servirebbe l'importo del mutuo iniziale
-        roe_note = "⚠️ Per ROE preciso specificare importo mutuo iniziale"
+        # ROI: Rendimento come se avessi pagato tutto cash (senza costi mutuo)
+        # Aggiungiamo i costi del mutuo al rendimento per calcolare il ROI "puro"
+        anni_con_mutuo = min(params['anni_restanti_mutuo'], params['anni_investimento'])
+        costi_mutuo_totali = params['rata_mutuo_mensile'] * 12 * anni_con_mutuo
+        
+        rendimento_senza_mutuo_nominale = rendimento_totale_nominale + costi_mutuo_totali
+        rendimento_senza_mutuo_reale = rendimento_totale_reale + costi_mutuo_totali
+        
+        roi_nominale = (rendimento_senza_mutuo_nominale / investimento_iniziale) * 100 if investimento_iniziale > 0 else 0
+        roi_reale = (rendimento_senza_mutuo_reale / investimento_iniziale) * 100 if investimento_iniziale > 0 else 0
+        
+        # ROE: Rendimento sul capitale proprio (con i costi del mutuo)
+        # Assumiamo che il capitale proprio sia l'investimento iniziale 
+        # (nella realtà dovremmo sapere quanto del valore immobile è coperto dal mutuo)
+        capitale_proprio = investimento_iniziale
+        roe_nominale = (rendimento_totale_nominale / capitale_proprio) * 100 if capitale_proprio > 0 else 0
+        roe_reale = (rendimento_totale_reale / capitale_proprio) * 100 if capitale_proprio > 0 else 0
+        
+        roe_note = f"⚠️ ROE calcolato su capitale proprio stimato di {format_currency(capitale_proprio)}. Per calcolo preciso specificare l'importo del mutuo iniziale."
+        
     else:
-        # Senza mutuo: ROE = ROI
+        # SENZA MUTUO: ROI = ROE
+        roi_nominale = (rendimento_totale_nominale / investimento_iniziale) * 100 if investimento_iniziale > 0 else 0
+        roi_reale = (rendimento_totale_reale / investimento_iniziale) * 100 if investimento_iniziale > 0 else 0
+        
         capitale_proprio = investimento_iniziale
         roe_nominale = roi_nominale
         roe_reale = roi_reale
@@ -182,3 +196,4 @@ def calculate_real_estate_investment_improved(params):
         'roe_note': roi_roe_metrics['roe_note'],
         'investimento_iniziale': roi_roe_metrics['investimento_iniziale']
     }
+
