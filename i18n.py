@@ -188,6 +188,19 @@ TRANSLATIONS = {
         'significant_difference_warning': 'Differenza significativa tra CAGR e TIR - analizzare la distribuzione dei flussi di cassa',
         'compound_annual_growth': 'Crescita annuale composta',
         'considering_inflation': 'Considerando inflazione',
+
+        'initial_monthly_rent': '• Affitto Mensile Iniziale: ',
+        'final_monthly_rent': '• **Affitto Mensile Finale: ',
+        'monthly_payment_vs_initial_rent': '• Rata mensile vs Affitto mensile iniziale: ',
+        'sustainable_mortgage_monthly': '✅ Mutuo sostenibile (< 50% affitto mensile)',
+        'challenging_mortgage_monthly': '⚠️ Mutuo impegnativo (50-70% affitto mensile)',
+        'risky_mortgage_monthly': '🚨 Mutuo rischioso (> 70% affitto mensile)',
+        'monthly_rent_growth': '• Crescita Affitto Mensile: ',
+        'rent_monthly_vs_annual': '• Mensile vs Annuale',
+
+        'monthly_calculation_note': '• I calcoli interni usano il valore annuale (mensile × 12)',
+        'mortgage_monthly_analysis': '• L\'analisi mutuo considera sia confronti mensili che annuali',
+
         
         'developed_by': '*Sviluppata da **AS** con la collaborazione di **KIM** 🐱 - Versione per fini didattici*',
         
@@ -382,6 +395,17 @@ TRANSLATIONS = {
         'significant_difference_warning': 'Significant difference between CAGR and IRR - analyze cash flow distribution',
         'compound_annual_growth': 'Compound annual growth',
         'considering_inflation': 'Considering inflation',
+
+        'initial_monthly_rent': '• Initial Monthly Rent: ',
+        'final_monthly_rent': '• **Final Monthly Rent: ',
+        'monthly_payment_vs_initial_rent': '• Monthly payment vs Initial monthly rent: ',
+        'sustainable_mortgage_monthly': '✅ Sustainable mortgage (< 50% monthly rent)',
+        'challenging_mortgage_monthly': '⚠️ Challenging mortgage (50-70% monthly rent)',
+        'risky_mortgage_monthly': '🚨 Risky mortgage (> 70% monthly rent)',
+        'monthly_rent_growth': '• Monthly Rent Growth: ',
+        'rent_monthly_vs_annual': '• Monthly vs Annual',
+        'monthly_calculation_note': '• Internal calculations use annual value (monthly × 12)',
+        'mortgage_monthly_analysis': '• Mortgage analysis considers both monthly and annual comparisons',
         
         'developed_by': '*Developed by **AS** in collaboration with **KIM** 🐱 - Educational version*',
         
