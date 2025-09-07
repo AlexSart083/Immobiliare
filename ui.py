@@ -153,8 +153,12 @@ def render_real_estate_section():
         st.write(f"**{get_text('base_params')}**")
         valore_immobile = st.number_input(
             get_text('property_value'), min_value=5000.00, value=200000.00, step=5000.00, key="real_estate_value")
-        affitto_lordo = st.number_input(
-            get_text('annual_rent'), min_value=0.00, value=12000.00, step=100.00, key="real_estate_rent")
+        affitto_mensile = st.number_input(
+            get_text('monthly_rent'), min_value=0.00, value=1000.00, step=50.00, key="real_estate_monthly_rent")
+        # Calcola l'affitto annuo per i calcoli interni
+        if affitto_mensile > 0:
+            st.info(f"{get_text('annual_rent_calculated')}{format_currency(affitto_lordo)}")
+        affitto_lordo = affitto_mensile * 12        
         rivalutazione_annua = st.number_input(
             get_text('annual_appreciation'), min_value=0.0, max_value=50.0, value=2.0, step=0.1, key="real_estate_appreciation")
         anni_investimento = st.number_input(
@@ -218,6 +222,7 @@ def render_real_estate_section():
     st.write(f"**{get_text('adjustment_notes')}**")
     note_col1, note_col2 = st.columns(2)
     with note_col1:
+        st.write(get_text('monthly_rent_note'))
         st.write(get_text('property_value_note'))
         st.write(get_text('inflation_note'))
         st.write(get_text('no_adjustment_note'))
