@@ -1,4 +1,102 @@
+import numpy as np
+from scipy.optimize import fsolve
+import warnings
 from utils import format_currency
+
+def calculate_irr(cash_flows):
+    """
+    Calcola il TIR (Tasso Interno di Rendimento) / IRR
+    
+    Args:
+        cash_flows: Lista dei flussi di cassa, dove cash_flows[0] è l'investimento iniziale (negativo)
+    
+    Returns:
+        float: TIR come percentuale (es. 0.05 = 5%) o None se non calcolabile
+    """
+    try:
+        # Controlla se ci sono flussi positivi e negativi
+        if not any(cf > 0 for cf in cash_flows) or not any(cf < 0 for cf in cash_flows):
+            return None
+        
+        # Funzione NPV da minimizzare
+        def npv(rate, cash_flows):
+            return sum(cf / (1 + rate) ** i for i, cf in enumerate(cash_flows))
+        
+        # Stima iniziale del TIR
+        initial_guess = 0.1  # 10%
+        
+        # Risolvi per trovare il tasso che rende NPV = 0
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            irr = fsolve(npv, initial_guess, args=(cash_flows,))[0]
+        
+        # Verifica che la soluzione sia ragionevole (-100% < IRR < 1000%)
+        if -1 < irr < 10:
+            return irr
+        else:
+            return None
+            
+    except:
+        return None
+
+def calculate_irr_for_real_estate(params, affitti_netti_annuali, valore_finale_nominale, valore_finale_reale):
+    """
+    Calcola il TIR per l'investimento immobiliare
+    
+    Returns:
+        dict: TIR nominale e reale
+    """
+    # Flussi di cassa nominali
+    cash_flows_nominal = []
+    
+    # Anno 0: Investimento iniziale (negativo)
+    investimento_iniziale = -(params['valore_immobile'] + params['commissione_iniziale'])
+    cash_flows_nominal.append(investimento_iniziale)
+    
+    # Anni 1 a N-1: Solo affitti netti
+    for i in range(len(affitti_netti_annuali) - 1):
+        cash_flows_nominal.append(affitti_netti_annuali[i])
+    
+    # Anno N: Affitti netti + valore finale - commissione finale
+    ultimo_flusso = (
+        affitti_netti_annuali[-1] + 
+        valore_finale_nominale - 
+        params['commissione_finale']
+    )
+    cash_flows_nominal.append(ultimo_flusso)
+    
+    # Calcola TIR nominale
+    tir_nominale = calculate_irr(cash_flows_nominal)
+    
+    # Flussi di cassa reali (scontati per inflazione)
+    cash_flows_real = []
+    inflazione_decimal = params['inflazione_perc'] / 100
+    
+    # Anno 0: Investimento iniziale (stesso valore)
+    cash_flows_real.append(investimento_iniziale)
+    
+    # Anni 1 a N-1: Affitti netti scontati per inflazione
+    for i, affitto_netto in enumerate(affitti_netti_annuali[:-1], 1):
+        affitto_reale = affitto_netto / ((1 + inflazione_decimal) ** i)
+        cash_flows_real.append(affitto_reale)
+    
+    # Anno N: Ultimo flusso scontato per inflazione
+    ultimo_flusso_reale = (
+        affitti_netti_annuali[-1] / ((1 + inflazione_decimal) ** params['anni_investimento']) +
+        valore_finale_reale - 
+        params['commissione_finale']
+    )
+    cash_flows_real.append(ultimo_flusso_reale)
+    
+    # Calcola TIR reale
+    tir_reale = calculate_irr(cash_flows_real)
+    
+    return {
+        'tir_nominale': tir_nominale * 100 if tir_nominale is not None else None,
+        'tir_reale': tir_reale * 100 if tir_reale is not None else None,
+        'cash_flows_nominal': cash_flows_nominal,
+        'cash_flows_real': cash_flows_real
+    }
 
 def calculate_roi_roe_metrics(params, rendimento_totale_nominale, rendimento_totale_reale):
     """
@@ -139,15 +237,22 @@ def calculate_real_estate_investment_improved(params):
         - params['commissione_iniziale'] - params['commissione_finale']
     )
 
+    # CALCOLO CAGR CORRETTO
+    # Investimento iniziale totale (quello che effettivamente investi)
+    investimento_iniziale_totale = params['valore_immobile'] + params['commissione_iniziale']
+
+    # Valore finale totale (quello che ottieni)
+    valore_finale_totale_nominale = valore_finale_nominale + totale_affitti_netti - params['commissione_finale']
+    valore_finale_totale_reale = valore_finale_reale + totale_affitti_netti_reale - params['commissione_finale']
+
+    # CAGR CORRETTO
     cagr_nominale = (
-        ((valore_finale_nominale + totale_affitti_netti - params['commissione_iniziale'] - params['commissione_finale']) /
-            params['valore_immobile']) ** (1 / params['anni_investimento']) - 1
-    ) if params['valore_immobile'] > 0 else 0
+        (valore_finale_totale_nominale / investimento_iniziale_totale) ** (1 / params['anni_investimento']) - 1
+    ) if investimento_iniziale_totale > 0 else 0
 
     cagr_reale = (
-        ((valore_finale_reale + totale_affitti_netti_reale - params['commissione_iniziale'] - params['commissione_finale']) /
-            params['valore_immobile']) ** (1 / params['anni_investimento']) - 1
-    ) if params['valore_immobile'] > 0 else 0
+        (valore_finale_totale_reale / investimento_iniziale_totale) ** (1 / params['anni_investimento']) - 1
+    ) if investimento_iniziale_totale > 0 else 0
 
     affitto_iniziale = params['affitto_lordo']
     affitto_finale = affitti_lordi_annuali[-1]
@@ -163,6 +268,9 @@ def calculate_real_estate_investment_improved(params):
 
     # Calcola ROI e ROE
     roi_roe_metrics = calculate_roi_roe_metrics(params, rendimento_totale_nominale, rendimento_totale_reale)
+
+    # Calcola TIR/IRR
+    tir_metrics = calculate_irr_for_real_estate(params, affitti_netti_annuali, valore_finale_nominale, valore_finale_reale)
 
     return {
         'valori_annuali': valori_annuali,
@@ -190,14 +298,16 @@ def calculate_real_estate_investment_improved(params):
         'crescita_costi_gestione': crescita_costi_gestione,
         'commissione_iniziale': params['commissione_iniziale'],
         'commissione_finale': params['commissione_finale'],
-        # Nuove metriche ROI e ROE
+        # ROI e ROE
         'roi_nominale': roi_roe_metrics['roi_nominale'],
         'roi_reale': roi_roe_metrics['roi_reale'],
         'roe_nominale': roi_roe_metrics['roe_nominale'],
         'roe_reale': roi_roe_metrics['roe_reale'],
         'roe_note': roi_roe_metrics['roe_note'],
-        'investimento_iniziale': roi_roe_metrics['investimento_iniziale']
+        'investimento_iniziale': roi_roe_metrics['investimento_iniziale'],
+        # TIR/IRR
+        'tir_nominale': tir_metrics['tir_nominale'],
+        'tir_reale': tir_metrics['tir_reale'],
+        'cash_flows_nominal': tir_metrics['cash_flows_nominal'],
+        'cash_flows_real': tir_metrics['cash_flows_real']
     }
-
-
-
