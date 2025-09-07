@@ -1,2 +1,4 @@
 streamlit
 python-dateutil
+numpy
+scipy
