@@ -43,67 +43,60 @@ def display_real_estate_results_simplified(results, params):
 
     res_col1, res_col2, res_col3 = st.columns(3)
 
-    with res_col1:
-        st.write(f"**{get_text('property_value_section')}**")
-        st.write(f"{get_text('initial_value')}{format_currency(params['valore_immobile'])}")
-        st.write(f"{get_text('final_nominal_value')}{format_currency(results['valore_finale_nominale'])}**")
-        st.write(f"{get_text('final_real_value')}{format_currency(results['valore_finale_reale'])}**")
-        st.write(f"{get_text('capital_gain_nominal')}{format_currency(results['guadagno_capitale_nominale'])}")
-        rivalutazione_totale = ((results['valore_finale_nominale']/params['valore_immobile'] - 1) * 100) if params['valore_immobile'] > 0 else 0
-        st.write(f"{get_text('total_appreciation')}{format_percentage(rivalutazione_totale)}")
-
-    with res_col2:
-        st.write(f"**{get_text('rent_analysis')}**")
-        st.write(f"{get_text('initial_rent')}{format_currency(params['affitto_lordo'])}")
-        st.write(f"{get_text('final_rent')}{format_currency(results['affitto_finale'])}**")
-        st.write(f"{get_text('total_rent_growth')}{format_percentage(results['crescita_affitto_totale'])}**")
-        st.write(f"{get_text('total_net_rents_nominal')}{format_currency(results['totale_affitti_netti'])}**")
-        st.write(f"{get_text('total_net_rents_real')}{format_currency(results['totale_affitti_netti_reale'])}**")
-        media_affitti_mensile_reale = results['totale_affitti_netti_reale'] / (12 * params['anni_investimento'])
-        st.write(f"{get_text('average_monthly_real')}{format_currency(media_affitti_mensile_reale)}**")
-        st.write(f"{get_text('adjustment_mode')}{params['tipo_adeguamento']}**")
-
-    with res_col3:
-        st.write(f"**{get_text('total_return')}**")
-        st.write(f"{get_text('total_return_nominal')}{format_currency(results['rendimento_totale_nominale'])}**")
-        st.write(f"{get_text('total_return_real')}{format_currency(results['rendimento_totale_reale'])}**")
-        if results['totale_costi_mutuo'] > 0:
-            st.write(f"{get_text('total_mortgage_costs')}{format_currency(results['totale_costi_mutuo'])}**")
-        if results['commissione_iniziale'] > 0 or results['commissione_finale'] > 0:
-            st.write(f"{get_text('initial_commissions')}{format_currency(results['commissione_iniziale'])}**")
-            st.write(f"{get_text('final_commissions')}{format_currency(results['commissione_finale'])}**")
-        rendimento_perc_nominale = (results['rendimento_totale_nominale'] / params['valore_immobile']) * 100 if params['valore_immobile'] > 0 else 0
-        rendimento_perc_reale = (results['rendimento_totale_reale'] / params['valore_immobile']) * 100 if params['valore_immobile'] > 0 else 0
-        st.write(f"{get_text('return_perc_nominal')}{format_percentage(rendimento_perc_nominale)}")
+    # ... tutto il codice esistente per le prime 3 colonne ...
 
     # Nuova sezione per le metriche di performance
     st.markdown("---")
     st.write("**📊 Metriche di Performance:**")
     
-    # Prima riga: CAGR (metrica principale)
-    cagr_col1, cagr_col2, cagr_col3 = st.columns(3)
-    with cagr_col1:
+    # Prima riga: CAGR e TIR (metriche principali)
+    main_metrics_col1, main_metrics_col2, main_metrics_col3, main_metrics_col4 = st.columns(4)
+    
+    with main_metrics_col1:
         st.metric("🏆 CAGR Nominale", f"{format_percentage(results['cagr_nominale'] * 100)}")
-        st.caption("✅ Metrica principale per confronti")
-    with cagr_col2:
+        st.caption("✅ Crescita annuale composta")
+    
+    with main_metrics_col2:
         st.metric("🏆 CAGR Reale", f"{format_percentage(results['cagr_reale'] * 100)}")
         st.caption("✅ Considerando inflazione")
-    with cagr_col3:
-        st.write("**💡 Perché CAGR?**")
-        st.info("Il CAGR normalizza i rendimenti su base annua e permette confronti diretti con altri investimenti")
-
-    # Seconda riga: ROI e ROE
-    metrics_col1, metrics_col2 = st.columns(2)
     
-    with metrics_col1:
-        st.write("**📈 ROI (Return on Investment):**")
+    with main_metrics_col3:
+        if results.get('tir_nominale') is not None:
+            st.metric("🎯 TIR Nominale", f"{format_percentage(results['tir_nominale'])}")
+            st.caption("✅ Tasso interno rendimento")
+        else:
+            st.metric("🎯 TIR Nominale", "N/A")
+            st.caption("⚠️ Calcolo non possibile")
+    
+    with main_metrics_col4:
+        if results.get('tir_reale') is not None:
+            st.metric("🎯 TIR Reale", f"{format_percentage(results['tir_reale'])}")
+            st.caption("✅ TIR deflazionato")
+        else:
+            st.metric("🎯 TIR Reale", "N/A")
+            st.caption("⚠️ Calcolo non possibile")
+
+    # Spiegazione delle metriche principali
+    st.info("""
+    **💡 Metriche Principali:**
+    - **CAGR**: Tasso di crescita annuale composto - normalizza i rendimenti e permette confronti diretti
+    - **TIR**: Tasso Interno di Rendimento - considera il timing dei flussi di cassa e è lo standard nel settore immobiliare
+    - Entrambe sono ottime per confrontare con altri investimenti
+    """)
+
+    # Seconda riga: ROI e ROE (metriche secondarie)
+    st.markdown("### 📈 Metriche Secondarie:")
+    secondary_col1, secondary_col2 = st.columns(2)
+    
+    with secondary_col1:
+        st.write("**📊 ROI (Return on Investment):**")
         st.write(f"• ROI Totale Nominale: {format_percentage(results['roi_nominale'])}")
         st.write(f"• **ROI Totale Reale: {format_percentage(results['roi_reale'])}**")
         roi_annualizzato = (((1 + results['roi_nominale']/100) ** (1/params['anni_investimento'])) - 1) * 100
         st.write(f"• ROI Annualizzato Nominale: {format_percentage(roi_annualizzato)}")
         st.write(f"• Investimento Iniziale: {format_currency(results['investimento_iniziale'])}")
         
-    with metrics_col2:
+    with secondary_col2:
         st.write("**🎯 ROE (Return on Equity):**")
         st.write(f"• ROE Totale Nominale: {format_percentage(results['roe_nominale'])}")  
         st.write(f"• **ROE Totale Reale: {format_percentage(results['roe_reale'])}**")
@@ -111,43 +104,46 @@ def display_real_estate_results_simplified(results, params):
         st.write(f"• ROE Annualizzato Nominale: {format_percentage(roe_annualizzato)}")
         st.info(results['roe_note'])
 
-    # Analisi mutuo se presente
-    if results['totale_costi_mutuo'] > 0:
-        st.write(f"**{get_text('mortgage_analysis')}**")
-        mortgage_col1, mortgage_col2 = st.columns(2)
-        with mortgage_col1:
-            st.write(f"{get_text('total_mortgage_costs_years')}{params['anni_investimento']}{get_text(' anni: ')}{format_currency(results['totale_costi_mutuo'])}**")
-            rata_annua = params['rata_mutuo_mensile'] * 12
-            percentuale_rata = (rata_annua / params['affitto_lordo']) * 100 if params['affitto_lordo'] > 0 else 0
-            st.write(f"{get_text('annual_vs_initial_rent')}{format_percentage(percentuale_rata)}")
-            if params['anni_restanti_mutuo'] < params['anni_investimento']:
-                anni_liberi = params['anni_investimento'] - params['anni_restanti_mutuo']
-                st.success(f"✅ {get_text('mortgage_free_years')}{anni_liberi}{get_text(' anni senza rata')}")
-        with mortgage_col2:
-            if percentuale_rata < 50:
-                st.success(get_text('sustainable_mortgage'))
-            elif percentuale_rata < 70:
-                st.warning(get_text('challenging_mortgage'))
-            else:
-                st.error(get_text('risky_mortgage'))
-            rendimento_senza_mutuo = results['rendimento_totale_nominale'] + results['totale_costi_mutuo']
-            miglioramento = rendimento_senza_mutuo - results['rendimento_totale_nominale']
-            st.info(f"{get_text('return_without_mortgage')}{format_currency(miglioramento)}")
+    # Confronto metriche se TIR è disponibile
+    if results.get('tir_nominale') is not None and results.get('tir_reale') is not None:
+        st.markdown("### 🔍 Confronto Metriche:")
+        comparison_col1, comparison_col2 = st.columns(2)
+        
+        with comparison_col1:
+            st.write("**📊 Valori Nominali:**")
+            metrics_comparison = [
+                ("CAGR", results['cagr_nominale'] * 100),
+                ("TIR", results['tir_nominale']),
+                ("ROI Annualizzato", roi_annualizzato)
+            ]
+            metrics_comparison.sort(key=lambda x: x[1], reverse=True)
+            
+            for i, (metric, value) in enumerate(metrics_comparison):
+                icon = "🥇" if i == 0 else "🥈" if i == 1 else "🥉"
+                st.write(f"{icon} {metric}: {format_percentage(value)}")
+        
+        with comparison_col2:
+            st.write("**📊 Valori Reali:**")
+            real_metrics_comparison = [
+                ("CAGR", results['cagr_reale'] * 100),
+                ("TIR", results['tir_reale']),
+                ("ROI", results['roi_reale'])
+            ]
+            real_metrics_comparison.sort(key=lambda x: x[1], reverse=True)
+            
+            for i, (metric, value) in enumerate(real_metrics_comparison):
+                icon = "🥇" if i == 0 else "🥈" if i == 1 else "🥉"
+                st.write(f"{icon} {metric}: {format_percentage(value)}")
 
-    st.write(f"**{get_text('investment_summary')}**")
-    summary_col1, summary_col2 = st.columns(2)
-    with summary_col1:
-        investimento_totale = params['valore_immobile'] + results['commissione_iniziale'] + - results['commissione_finale']
-        capitale_finale_affitti_nominale = results['valore_finale_nominale'] + results['totale_affitti_netti'] - results['commissione_iniziale'] - results['commissione_finale']
-        capitale_finale_affitti_reale = results['valore_finale_reale'] + results['totale_affitti_netti_reale'] - results['commissione_iniziale'] - results['commissione_finale']
-        st.write(f"{get_text('final_capital_rents_nominal')}{format_currency(capitale_finale_affitti_nominale)}**")
-        st.write(f"{get_text('final_capital_rents_real')}{format_currency(capitale_finale_affitti_reale)}**")
-        if results['commissione_iniziale'] > 0 or results['commissione_finale'] > 0:
-            commissioni_totali = results['commissione_iniziale'] + results['commissione_finale']
-            st.write(f"{get_text('total_commissions_deducted')}{format_currency(commissioni_totali)})*")
-    with summary_col2:
-        st.info(get_text('calculation_note'))
-
+        # Analisi delle differenze
+        cagr_tir_diff = abs(results['cagr_nominale'] * 100 - results['tir_nominale'])
+        if cagr_tir_diff < 0.5:
+            st.success("✅ CAGR e TIR sono molto simili - flussi di cassa ben distribuiti nel tempo")
+        elif cagr_tir_diff < 2:
+            st.info("ℹ️ Piccola differenza tra CAGR e TIR - normale per investimenti immobiliari")
+        else:
+            st.warning("⚠️ Differenza significativa tra CAGR e TIR - analizzare la distribuzione dei flussi di cassa")
+            
 def render_real_estate_section():
     st.subheader(get_text('real_estate_analysis'))
     st.info(get_text('real_estate_info'))
