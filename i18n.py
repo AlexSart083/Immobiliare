@@ -17,6 +17,12 @@ TRANSLATIONS = {
         'real_estate_info': '💡 Stima con rivalutazione, inflazione, mutuo e adeguamento affitti personalizzabile',
         
         # Base Parameters
+        'monthly_rent': 'Affitto Lordo Mensile (€)',
+        'annual_rent_calculated': '💰 Affitto Annuo Calcolato: ',
+        'rent_calculation_notes': 'ℹ️ Note sul Calcolo Affitto:',
+        'monthly_rent_note': '• **Affitto Mensile**: Inserito dall\'utente, moltiplicato x12 per i calcoli',
+        'monthly_rent_input': 'Affitto mensile inserito',
+        'calculated_annually': 'Calcolato annualmente per l\'analisi',        
         'base_params': '🏠 Parametri Base Immobile',
         'property_value': 'Valore Immobile (€)',
         'annual_rent': 'Affitto Lordo Annuo (€)',
@@ -205,9 +211,15 @@ TRANSLATIONS = {
         'real_estate_info': '💡 Estimate with appreciation, inflation, mortgage and customizable rent adjustments',
         
         # Base Parameters
+        'monthly_rent': 'Monthly Gross Rent (€)',
+        'annual_rent': 'Annual Gross Rent (€)',  # Mantieni per i calcoli
+        'annual_rent_calculated': '💰 Calculated Annual Rent: ',
+        'rent_calculation_notes': 'ℹ️ Rent Calculation Notes:',
+        'monthly_rent_note': '• **Monthly Rent**: User input, multiplied x12 for calculations',
+        'monthly_rent_input': 'Monthly rent input',
+        'calculated_annually': 'Calculated annually for analysis',        
         'base_params': '🏠 Base Property Parameters',
         'property_value': 'Property Value (€)',
-        'annual_rent': 'Annual Gross Rent (€)',
         'annual_appreciation': 'Annual Appreciation (%)',
         'investment_years': 'Investment Years',
         'one_time_commissions': 'One-time commissions',
