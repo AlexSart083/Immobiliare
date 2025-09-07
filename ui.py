@@ -31,6 +31,7 @@ def render_footer():
 {get_text('nominal_values_note')}
 {get_text('real_values_note')}
 - **CAGR**: {get_text('cagr_note')}
+- **TIR**: {get_text('tir_note')}
 - **ROI**: {get_text('roi_note')}
 - **ROE**: {get_text('roe_note')}
 {get_text('property_tax_note')}
@@ -43,7 +44,45 @@ def display_real_estate_results_simplified(results, params):
 
     res_col1, res_col2, res_col3 = st.columns(3)
 
-    # ... tutto il codice esistente per le prime 3 colonne ...
+    with res_col1:
+        st.write(f"**{get_text('property_value_section')}**")
+        st.write(f"{get_text('initial_value')}{format_currency(params['valore_immobile'])}")
+        st.write(f"{get_text('final_nominal_value')}{format_currency(results['valore_finale_nominale'])}**")
+        st.write(f"{get_text('final_real_value')}{format_currency(results['valore_finale_reale'])}**")
+        st.write(f"{get_text('capital_gain_nominal')}{format_currency(results['guadagno_capitale_nominale'])}")
+        rivalutazione_totale = ((results['valore_finale_nominale']/params['valore_immobile'] - 1) * 100) if params['valore_immobile'] > 0 else 0
+        st.write(f"{get_text('total_appreciation')}{format_percentage(rivalutazione_totale)}")
+
+    with res_col2:
+        st.write(f"**{get_text('rent_analysis')}**")
+        
+        # Affitto mensile iniziale e finale
+        affitto_mensile_iniziale = params['affitto_lordo'] / 12
+        affitto_mensile_finale = results['affitto_finale'] / 12
+        
+        st.write(f"{get_text('initial_monthly_rent')}{format_currency(affitto_mensile_iniziale)}")
+        st.write(f"{get_text('initial_rent')}{format_currency(params['affitto_lordo'])}")
+        st.write(f"{get_text('final_monthly_rent')}{format_currency(affitto_mensile_finale)}**")
+        st.write(f"{get_text('final_rent')}{format_currency(results['affitto_finale'])}**")
+        st.write(f"{get_text('total_rent_growth')}{format_percentage(results['crescita_affitto_totale'])}**")
+        st.write(f"{get_text('total_net_rents_nominal')}{format_currency(results['totale_affitti_netti'])}**")
+        st.write(f"{get_text('total_net_rents_real')}{format_currency(results['totale_affitti_netti_reale'])}**")
+        media_affitti_mensile_reale = results['totale_affitti_netti_reale'] / (12 * params['anni_investimento'])
+        st.write(f"{get_text('average_monthly_real')}{format_currency(media_affitti_mensile_reale)}**")
+        st.write(f"{get_text('adjustment_mode')}{params['tipo_adeguamento']}**")
+
+    with res_col3:
+        st.write(f"**{get_text('total_return')}**")
+        st.write(f"{get_text('total_return_nominal')}{format_currency(results['rendimento_totale_nominale'])}**")
+        st.write(f"{get_text('total_return_real')}{format_currency(results['rendimento_totale_reale'])}**")
+        if results['totale_costi_mutuo'] > 0:
+            st.write(f"{get_text('total_mortgage_costs')}{format_currency(results['totale_costi_mutuo'])}**")
+        if results['commissione_iniziale'] > 0 or results['commissione_finale'] > 0:
+            st.write(f"{get_text('initial_commissions')}{format_currency(results['commissione_iniziale'])}**")
+            st.write(f"{get_text('final_commissions')}{format_currency(results['commissione_finale'])}**")
+        rendimento_perc_nominale = (results['rendimento_totale_nominale'] / params['valore_immobile']) * 100 if params['valore_immobile'] > 0 else 0
+        rendimento_perc_reale = (results['rendimento_totale_reale'] / params['valore_immobile']) * 100 if params['valore_immobile'] > 0 else 0
+        st.write(f"{get_text('return_perc_nominal')}{format_percentage(rendimento_perc_nominale)}")
 
     # Nuova sezione per le metriche di performance
     st.markdown("---")
@@ -143,7 +182,55 @@ def display_real_estate_results_simplified(results, params):
             st.info("ℹ️ Piccola differenza tra CAGR e TIR - normale per investimenti immobiliari")
         else:
             st.warning("⚠️ Differenza significativa tra CAGR e TIR - analizzare la distribuzione dei flussi di cassa")
+
+    # Analisi mutuo se presente
+    if results['totale_costi_mutuo'] > 0:
+        st.markdown("---")
+        st.write(f"**{get_text('mortgage_analysis')}**")
+        mortgage_col1, mortgage_col2 = st.columns(2)
+        with mortgage_col1:
+            st.write(f"{get_text('total_mortgage_costs_years')}{params['anni_investimento']}{get_text('years_suffix')}{format_currency(results['totale_costi_mutuo'])}**")
             
+            # Confronti sia mensili che annuali
+            percentuale_rata_mensile = (params['rata_mutuo_mensile'] / affitto_mensile_iniziale) * 100 if affitto_mensile_iniziale > 0 else 0
+            st.write(f"{get_text('monthly_payment_vs_initial_rent')}{format_percentage(percentuale_rata_mensile)}")
+            
+            rata_annua = params['rata_mutuo_mensile'] * 12
+            percentuale_rata_annua = (rata_annua / params['affitto_lordo']) * 100 if params['affitto_lordo'] > 0 else 0
+            st.write(f"{get_text('annual_vs_initial_rent')}{format_percentage(percentuale_rata_annua)}")
+            
+            if params['anni_restanti_mutuo'] < params['anni_investimento']:
+                anni_liberi = params['anni_investimento'] - params['anni_restanti_mutuo']
+                st.success(f"✅ {get_text('mortgage_free_years')}{anni_liberi}{get_text('years_without_payment')}")
+                
+        with mortgage_col2:
+            # Usa percentuale mensile per la valutazione
+            if percentuale_rata_mensile < 50:
+                st.success(get_text('sustainable_mortgage_monthly'))
+            elif percentuale_rata_mensile < 70:
+                st.warning(get_text('challenging_mortgage_monthly'))
+            else:
+                st.error(get_text('risky_mortgage_monthly'))
+            
+            rendimento_senza_mutuo = results['rendimento_totale_nominale'] + results['totale_costi_mutuo']
+            miglioramento = rendimento_senza_mutuo - results['rendimento_totale_nominale']
+            st.info(f"{get_text('return_without_mortgage')}{format_currency(miglioramento)}")
+
+    st.markdown("---")
+    st.write(f"**{get_text('investment_summary')}**")
+    summary_col1, summary_col2 = st.columns(2)
+    with summary_col1:
+        investimento_totale = params['valore_immobile'] + results['commissione_iniziale'] + - results['commissione_finale']
+        capitale_finale_affitti_nominale = results['valore_finale_nominale'] + results['totale_affitti_netti'] - results['commissione_iniziale'] - results['commissione_finale']
+        capitale_finale_affitti_reale = results['valore_finale_reale'] + results['totale_affitti_netti_reale'] - results['commissione_iniziale'] - results['commissione_finale']
+        st.write(f"{get_text('final_capital_rents_nominal')}{format_currency(capitale_finale_affitti_nominale)}**")
+        st.write(f"{get_text('final_capital_rents_real')}{format_currency(capitale_finale_affitti_reale)}**")
+        if results['commissione_iniziale'] > 0 or results['commissione_finale'] > 0:
+            commissioni_totali = results['commissione_iniziale'] + results['commissione_finale']
+            st.write(f"{get_text('total_commissions_deducted')}{format_currency(commissioni_totali)})*")
+    with summary_col2:
+        st.info(get_text('calculation_note'))
+
 def render_real_estate_section():
     st.subheader(get_text('real_estate_analysis'))
     st.info(get_text('real_estate_info'))
@@ -153,12 +240,18 @@ def render_real_estate_section():
         st.write(f"**{get_text('base_params')}**")
         valore_immobile = st.number_input(
             get_text('property_value'), min_value=5000.00, value=200000.00, step=5000.00, key="real_estate_value")
+        
+        # MODIFICA PRINCIPALE: Input affitto mensile invece che annuale
         affitto_mensile = st.number_input(
             get_text('monthly_rent'), min_value=0.00, value=1000.00, step=50.00, key="real_estate_monthly_rent")
+        
         # Calcola l'affitto annuo per i calcoli interni
+        affitto_lordo = affitto_mensile * 12
+        
+        # Mostra l'affitto annuo calcolato
         if affitto_mensile > 0:
             st.info(f"{get_text('annual_rent_calculated')}{format_currency(affitto_lordo)}")
-        affitto_lordo = affitto_mensile * 12        
+        
         rivalutazione_annua = st.number_input(
             get_text('annual_appreciation'), min_value=0.0, max_value=50.0, value=2.0, step=0.1, key="real_estate_appreciation")
         anni_investimento = st.number_input(
@@ -229,6 +322,7 @@ def render_real_estate_section():
         st.write(get_text('management_costs_note'))
         st.write(get_text('insurance_costs_note'))
     with note_col2:
+        st.write(get_text('monthly_calculation_note'))
         st.write(get_text('percentage_costs_note'))
         st.write(get_text('maintenance_taxes_note'))
         st.write(get_text('fixed_costs_note'))
@@ -248,7 +342,7 @@ def render_real_estate_section():
             
             params = {
                 'valore_immobile': valore_immobile,
-                'affitto_lordo': affitto_lordo,
+                'affitto_lordo': affitto_lordo,  # Usa l'affitto annuale calcolato
                 'rivalutazione_annua': rivalutazione_annua,
                 'anni_investimento': anni_investimento,
                 'costi_assicurazione_euro': costi_assicurazione_euro,
