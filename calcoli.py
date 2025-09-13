@@ -41,17 +41,27 @@ def calculate_irr(cash_flows):
 
 def calculate_irr_for_real_estate(params, affitti_netti_annuali, valore_finale_nominale, valore_finale_reale):
     """
-    Calcola il TIR per l'investimento immobiliare
+    Calcola il TIR per l'investimento immobiliare considerando i costi reali
     
     Returns:
         dict: TIR nominale e reale
     """
+    # Determina l'investimento iniziale reale
+    costo_acquisto = params.get('costo_acquisto', 0)
+    costo_ristrutturazione = params.get('costo_ristrutturazione', 0)
+    
+    if costo_acquisto > 0 or costo_ristrutturazione > 0:
+        # Usa i costi reali sostenuti
+        investimento_iniziale_reale = costo_acquisto + costo_ristrutturazione + params['commissione_iniziale']
+    else:
+        # Usa il valore dell'immobile come prima
+        investimento_iniziale_reale = params['valore_immobile'] + params['commissione_iniziale']
+    
     # Flussi di cassa nominali
     cash_flows_nominal = []
     
     # Anno 0: Investimento iniziale (negativo)
-    investimento_iniziale = -(params['valore_immobile'] + params['commissione_iniziale'])
-    cash_flows_nominal.append(investimento_iniziale)
+    cash_flows_nominal.append(-investimento_iniziale_reale)
     
     # Anni 1 a N-1: Solo affitti netti
     for i in range(len(affitti_netti_annuali) - 1):
@@ -73,7 +83,7 @@ def calculate_irr_for_real_estate(params, affitti_netti_annuali, valore_finale_n
     inflazione_decimal = params['inflazione_perc'] / 100
     
     # Anno 0: Investimento iniziale (stesso valore)
-    cash_flows_real.append(investimento_iniziale)
+    cash_flows_real.append(-investimento_iniziale_reale)
     
     # Anni 1 a N-1: Affitti netti scontati per inflazione
     for i, affitto_netto in enumerate(affitti_netti_annuali[:-1], 1):
@@ -95,17 +105,26 @@ def calculate_irr_for_real_estate(params, affitti_netti_annuali, valore_finale_n
         'tir_nominale': tir_nominale * 100 if tir_nominale is not None else None,
         'tir_reale': tir_reale * 100 if tir_reale is not None else None,
         'cash_flows_nominal': cash_flows_nominal,
-        'cash_flows_real': cash_flows_real
+        'cash_flows_real': cash_flows_real,
+        'investimento_iniziale_reale': investimento_iniziale_reale
     }
 
 def calculate_roi_roe_metrics(params, rendimento_totale_nominale, rendimento_totale_reale):
     """
-    Calcola ROI e ROE per l'investimento immobiliare
+    Calcola ROI e ROE per l'investimento immobiliare considerando i costi reali
     ROI = rendimento sull'investimento totale (senza considerare il finanziamento)
     ROE = rendimento sul capitale proprio (considerando il leverage del mutuo)
     """
-    # Investimento iniziale totale (quello che effettivamente hai speso)
-    investimento_iniziale = params['valore_immobile'] + params['commissione_iniziale']
+    # Determina l'investimento iniziale reale
+    costo_acquisto = params.get('costo_acquisto', 0)
+    costo_ristrutturazione = params.get('costo_ristrutturazione', 0)
+    
+    if costo_acquisto > 0 or costo_ristrutturazione > 0:
+        # Usa i costi reali sostenuti
+        investimento_iniziale = costo_acquisto + costo_ristrutturazione + params['commissione_iniziale']
+    else:
+        # Usa il valore dell'immobile come prima
+        investimento_iniziale = params['valore_immobile'] + params['commissione_iniziale']
     
     if params['rata_mutuo_mensile'] > 0:
         # CON MUTUO: ROI e ROE sono diversi
@@ -165,6 +184,21 @@ def calculate_real_estate_investment_improved(params):
     rapporto_affitto_iniziale = params['affitto_lordo'] / params['valore_immobile']
 
     rata_mutuo_annua = params['rata_mutuo_mensile'] * 12 if params['rata_mutuo_mensile'] > 0 else 0
+
+    # NUOVO: Calcola plus/minusvalore iniziale
+    costo_acquisto = params.get('costo_acquisto', 0)
+    costo_ristrutturazione = params.get('costo_ristrutturazione', 0)
+    plusvalore_minusvalore_iniziale = 0
+    
+    if costo_acquisto > 0 or costo_ristrutturazione > 0:
+        costo_totale_sostenuto = costo_acquisto + costo_ristrutturazione
+        plusvalore_minusvalore_iniziale = params['valore_immobile'] - costo_totale_sostenuto
+    
+    # Determina l'investimento iniziale reale per CAGR
+    if costo_acquisto > 0 or costo_ristrutturazione > 0:
+        investimento_iniziale_totale = costo_acquisto + costo_ristrutturazione + params['commissione_iniziale']
+    else:
+        investimento_iniziale_totale = params['valore_immobile'] + params['commissione_iniziale']
 
     valori_annuali = []
     affitti_lordi_annuali = []
@@ -228,24 +262,21 @@ def calculate_real_estate_investment_improved(params):
         valore_presente_affitto = affitto_netto_anno / ((1 + inflazione_decimal) ** anno)
         totale_affitti_netti_reale += valore_presente_affitto
 
+    # MODIFICATO: Aggiungi plus/minusvalore iniziale al rendimento
     rendimento_totale_nominale = (
-        totale_affitti_netti + guadagno_capitale_nominale
+        totale_affitti_netti + guadagno_capitale_nominale + plusvalore_minusvalore_iniziale
         - params['commissione_iniziale'] - params['commissione_finale']
     )
     rendimento_totale_reale = (
-        totale_affitti_netti_reale + guadagno_capitale_reale
+        totale_affitti_netti_reale + guadagno_capitale_reale + plusvalore_minusvalore_iniziale
         - params['commissione_iniziale'] - params['commissione_finale']
     )
-
-    # CALCOLO CAGR CORRETTO
-    # Investimento iniziale totale (quello che effettivamente investi)
-    investimento_iniziale_totale = params['valore_immobile'] + params['commissione_iniziale']
 
     # Valore finale totale (quello che ottieni)
     valore_finale_totale_nominale = valore_finale_nominale + totale_affitti_netti - params['commissione_finale']
     valore_finale_totale_reale = valore_finale_reale + totale_affitti_netti_reale - params['commissione_finale']
 
-    # CAGR CORRETTO
+    # CAGR CORRETTO con investimento iniziale reale
     cagr_nominale = (
         (valore_finale_totale_nominale / investimento_iniziale_totale) ** (1 / params['anni_investimento']) - 1
     ) if investimento_iniziale_totale > 0 else 0
@@ -266,10 +297,10 @@ def calculate_real_estate_investment_improved(params):
     crescita_costi_gestione = ((costi_gestione_finali / params['costi_gestione_euro']) - 1) * 100 \
         if params['costi_gestione_euro'] > 0 else 0
 
-    # Calcola ROI e ROE
+    # Calcola ROI e ROE con i nuovi parametri
     roi_roe_metrics = calculate_roi_roe_metrics(params, rendimento_totale_nominale, rendimento_totale_reale)
 
-    # Calcola TIR/IRR
+    # Calcola TIR/IRR con i nuovi parametri
     tir_metrics = calculate_irr_for_real_estate(params, affitti_netti_annuali, valore_finale_nominale, valore_finale_reale)
 
     return {
@@ -298,6 +329,11 @@ def calculate_real_estate_investment_improved(params):
         'crescita_costi_gestione': crescita_costi_gestione,
         'commissione_iniziale': params['commissione_iniziale'],
         'commissione_finale': params['commissione_finale'],
+        # NUOVO: Plus/minusvalore iniziale
+        'plusvalore_minusvalore_iniziale': plusvalore_minusvalore_iniziale,
+        'costo_acquisto': costo_acquisto,
+        'costo_ristrutturazione': costo_ristrutturazione,
+        'investimento_iniziale_reale': investimento_iniziale_totale,
         # ROI e ROE
         'roi_nominale': roi_roe_metrics['roi_nominale'],
         'roi_reale': roi_roe_metrics['roi_reale'],
