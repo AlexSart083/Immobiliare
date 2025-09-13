@@ -28,6 +28,20 @@ TRANSLATIONS = {
         'annual_rent': 'Affitto Lordo Annuo (€)',
         'annual_appreciation': 'Rivalutazione Annua (%)',
         'investment_years': 'Anni di Investimento',
+        
+        # NUOVO: Costi reali sostenuti
+        'real_costs_sustained': '💰 Costi Reali Sostenuti',
+        'purchase_cost': 'Costo di Acquisto (€)',
+        'purchase_cost_help': 'Quanto hai effettivamente pagato per acquistare l\'immobile. Se 0, usa il valore immobile per i calcoli.',
+        'renovation_cost': 'Costo di Ristrutturazione (€)',
+        'renovation_cost_help': 'Costi sostenuti per ristrutturazioni, lavori, migliorie. Se 0, non viene considerato.',
+        'total_invested': '💰 Totale investito: ',
+        'initial_capital_gain': '✅ Plusvalore iniziale: +',
+        'initial_capital_loss': '⚠️ Minusvalore iniziale: ',
+        'investment_in_balance': '⚖️ Investimento in pari',
+        'great_deal': '🎯 Ottimo affare!',
+        'bad_deal': '📉 Affare svantaggioso',
+        
         'one_time_commissions': 'Commissioni una tantum',
         'initial_commission': 'Commissione Iniziale (€)',
         'initial_commission_help': 'Costi di acquisto una tantum (es. agenzia, notaio)',
@@ -81,12 +95,29 @@ TRANSLATIONS = {
         'fixed_costs_note': '• Assicurazione e gestione: costi fissi + inflazione',
         'mortgage_note': '• **Mutuo**: Se presente, viene considerato fino alla scadenza',
         'fixed_mortgage_note': '• Rate mutuo sono fisse e non si adeguano all\'inflazione',
+        'real_costs_note': '• **Costi Reali**: Se inseriti, modificano il calcolo del rendimento finale',
+        'good_deal_note': '• **Buon Affare**: Plusvalore iniziale aumenta il rendimento complessivo',
+        'bad_deal_note': '• **Affare Svantaggioso**: Minusvalore iniziale riduce il rendimento complessivo',
         
         # Calculate button
         'calculate_button': '🏠 Calcola Investimento Immobiliare',
         
         # Results
         'results_title': '🎯 Risultati Analisi Investimento Immobiliare',
+        'initial_investment_analysis': '💰 Analisi dell\'Investimento Iniziale:',
+        'purchase_cost_label': '• Costo Acquisto: ',
+        'renovation_cost_label': '• Costo Ristrutturazione: ',
+        'total_invested_label': '• **Totale Investito: ',
+        'current_property_value': '• Valore Immobile Attuale: ',
+        'initial_capital_gain_label': '• **Plusvalore Iniziale: +',
+        'initial_capital_loss_label': '• **Minusvalore Iniziale: ',
+        'value_in_balance': '• **Valore in pari** ⚖️',
+        'great_deal_percentage': '• **Ottimo affare! +',
+        'bad_deal_percentage': '• **Affare svantaggioso: -',
+        'calculation_impact': '• **Impatto sui Calcoli:**',
+        'added_to_return': '• Aggiunto al rendimento: +',
+        'subtracted_from_return': '• Sottratto dal rendimento: ',
+        
         'property_value_section': '🏠 Valore Immobile:',
         'initial_value': '• Valore Iniziale: ',
         'final_nominal_value': '• **Valore Finale (Nominale): ',
@@ -168,6 +199,7 @@ TRANSLATIONS = {
         'roi_note': 'Return on Investment - rendimento totale sull\'investimento iniziale',
         'roe_note': 'Return on Equity - rendimento sul capitale proprio (importante con leverage)',
         'property_tax_note': '- **Tassa di Proprietà**: Calcolo semplificato basato sul valore dell\'immobile (nella realtà dipende dalla rendita catastale)',
+        'real_costs_calculation_note': '- **Costi Reali**: Se inseriti costo acquisto e/o ristrutturazione, il calcolo considera il plus/minusvalore iniziale',
 
         'tir_nominal': 'TIR Nominale',
         'tir_real': 'TIR Reale',
@@ -235,6 +267,20 @@ TRANSLATIONS = {
         'property_value': 'Property Value (€)',
         'annual_appreciation': 'Annual Appreciation (%)',
         'investment_years': 'Investment Years',
+        
+        # NUOVO: Costi reali sostenuti
+        'real_costs_sustained': '💰 Real Costs Sustained',
+        'purchase_cost': 'Purchase Cost (€)',
+        'purchase_cost_help': 'How much you actually paid to buy the property. If 0, uses property value for calculations.',
+        'renovation_cost': 'Renovation Cost (€)',
+        'renovation_cost_help': 'Costs incurred for renovations, works, improvements. If 0, not considered.',
+        'total_invested': '💰 Total invested: ',
+        'initial_capital_gain': '✅ Initial capital gain: +',
+        'initial_capital_loss': '⚠️ Initial capital loss: ',
+        'investment_in_balance': '⚖️ Investment in balance',
+        'great_deal': '🎯 Great deal!',
+        'bad_deal': '📉 Disadvantageous deal',
+        
         'one_time_commissions': 'One-time commissions',
         'initial_commission': 'Initial Commission (€)',
         'initial_commission_help': 'One-time purchase costs (e.g. agency, notary)',
@@ -288,12 +334,29 @@ TRANSLATIONS = {
         'fixed_costs_note': '• Insurance and management: fixed costs + inflation',
         'mortgage_note': '• **Mortgage**: If present, considered until maturity',
         'fixed_mortgage_note': '• Mortgage payments are fixed and don\'t adjust for inflation',
+        'real_costs_note': '• **Real Costs**: If entered, modify the final return calculation',
+        'good_deal_note': '• **Good Deal**: Initial capital gain increases overall return',
+        'bad_deal_note': '• **Bad Deal**: Initial capital loss reduces overall return',
         
         # Calculate button
         'calculate_button': '🏠 Calculate Real Estate Investment',
         
         # Results
         'results_title': '🎯 Real Estate Investment Analysis Results',
+        'initial_investment_analysis': '💰 Initial Investment Analysis:',
+        'purchase_cost_label': '• Purchase Cost: ',
+        'renovation_cost_label': '• Renovation Cost: ',
+        'total_invested_label': '• **Total Invested: ',
+        'current_property_value': '• Current Property Value: ',
+        'initial_capital_gain_label': '• **Initial Capital Gain: +',
+        'initial_capital_loss_label': '• **Initial Capital Loss: ',
+        'value_in_balance': '• **Value in balance** ⚖️',
+        'great_deal_percentage': '• **Great deal! +',
+        'bad_deal_percentage': '• **Disadvantageous deal: -',
+        'calculation_impact': '• **Impact on Calculations:**',
+        'added_to_return': '• Added to return: +',
+        'subtracted_from_return': '• Subtracted from return: ',
+        
         'property_value_section': '🏠 Property Value:',
         'initial_value': '• Initial Value: ',
         'final_nominal_value': '• **Final Value (Nominal): ',
@@ -375,6 +438,7 @@ TRANSLATIONS = {
         'roi_note': 'Return on Investment - total return on initial investment',
         'roe_note': 'Return on Equity - return on own capital (important with leverage)',
         'property_tax_note': '- **Property Tax**: Simplified calculation based on property value (in reality depends on cadastral income)',
+        'real_costs_calculation_note': '- **Real Costs**: If purchase and/or renovation costs are entered, calculation considers initial capital gain/loss',
 
         'tir_nominal': 'Nominal IRR',
         'tir_real': 'Real IRR',
