@@ -42,6 +42,42 @@ def render_footer():
 def display_real_estate_results_simplified(results, params):
     st.success(f"**{get_text('results_title')}**")
 
+    # Analisi dell'affare fatto
+    if params.get('costo_acquisto', 0) > 0 or params.get('costo_ristrutturazione', 0) > 0:
+        st.markdown("---")
+        st.write("**💰 Analisi dell'Investimento Iniziale:**")
+        
+        costo_totale_sostenuto = params.get('costo_acquisto', 0) + params.get('costo_ristrutturazione', 0)
+        differenza_valore = params['valore_immobile'] - costo_totale_sostenuto
+        
+        col_deal1, col_deal2, col_deal3 = st.columns(3)
+        
+        with col_deal1:
+            st.write(f"• Costo Acquisto: {format_currency(params.get('costo_acquisto', 0))}")
+            st.write(f"• Costo Ristrutturazione: {format_currency(params.get('costo_ristrutturazione', 0))}")
+            st.write(f"• **Totale Investito: {format_currency(costo_totale_sostenuto)}**")
+            
+        with col_deal2:
+            st.write(f"• Valore Immobile Attuale: {format_currency(params['valore_immobile'])}")
+            if differenza_valore > 0:
+                st.success(f"• **Plusvalore Iniziale: +{format_currency(differenza_valore)}** ✅")
+                percentuale_guadagno = (differenza_valore / costo_totale_sostenuto) * 100 if costo_totale_sostenuto > 0 else 0
+                st.success(f"• **Ottimo affare! +{format_percentage(percentuale_guadagno)}** 🎯")
+            elif differenza_valore < 0:
+                st.error(f"• **Minusvalore Iniziale: {format_currency(differenza_valore)}** ⚠️")
+                percentuale_perdita = (abs(differenza_valore) / costo_totale_sostenuto) * 100 if costo_totale_sostenuto > 0 else 0
+                st.error(f"• **Affare svantaggioso: -{format_percentage(percentuale_perdita)}** 📉")
+            else:
+                st.info("• **Valore in pari** ⚖️")
+                
+        with col_deal3:
+            if 'plusvalore_minusvalore_iniziale' in results:
+                st.write("• **Impatto sui Calcoli:**")
+                if results['plusvalore_minusvalore_iniziale'] > 0:
+                    st.success(f"• Aggiunto al rendimento: +{format_currency(results['plusvalore_minusvalore_iniziale'])}")
+                elif results['plusvalore_minusvalore_iniziale'] < 0:
+                    st.error(f"• Sottratto dal rendimento: {format_currency(results['plusvalore_minusvalore_iniziale'])}")
+
     res_col1, res_col2, res_col3 = st.columns(3)
 
     with res_col1:
@@ -192,6 +228,7 @@ def display_real_estate_results_simplified(results, params):
             st.write(f"{get_text('total_mortgage_costs_years')}{params['anni_investimento']}{get_text('years_suffix')}{format_currency(results['totale_costi_mutuo'])}**")
             
             # Confronti sia mensili che annuali
+            affitto_mensile_iniziale = params['affitto_lordo'] / 12
             percentuale_rata_mensile = (params['rata_mutuo_mensile'] / affitto_mensile_iniziale) * 100 if affitto_mensile_iniziale > 0 else 0
             st.write(f"{get_text('monthly_payment_vs_initial_rent')}{format_percentage(percentuale_rata_mensile)}")
             
@@ -241,6 +278,27 @@ def render_real_estate_section():
         valore_immobile = st.number_input(
             get_text('property_value'), min_value=5000.00, value=200000.00, step=5000.00, key="real_estate_value")
         
+        # NUOVI PARAMETRI: Costi reali sostenuti
+        st.write(f"**💰 Costi Reali Sostenuti**")
+        costo_acquisto = st.number_input(
+            "Costo di Acquisto (€)", min_value=0.00, value=0.00, step=1000.00, key="real_estate_purchase_cost",
+            help="Quanto hai effettivamente pagato per acquistare l'immobile. Se 0, usa il valore immobile per i calcoli.")
+        costo_ristrutturazione = st.number_input(
+            "Costo di Ristrutturazione (€)", min_value=0.00, value=0.00, step=1000.00, key="real_estate_renovation_cost",
+            help="Costi sostenuti per ristrutturazioni, lavori, migliorie. Se 0, non viene considerato.")
+        
+        # Mostra l'analisi dei costi se inseriti
+        if costo_acquisto > 0 or costo_ristrutturazione > 0:
+            costo_totale_sostenuto = costo_acquisto + costo_ristrutturazione
+            differenza = valore_immobile - costo_totale_sostenuto
+            st.info(f"💰 Totale investito: {format_currency(costo_totale_sostenuto)}")
+            if differenza > 0:
+                st.success(f"✅ Plusvalore iniziale: +{format_currency(differenza)}")
+            elif differenza < 0:
+                st.error(f"⚠️ Minusvalore iniziale: {format_currency(differenza)}")
+            else:
+                st.info("⚖️ Investimento in pari")
+        
         # MODIFICA PRINCIPALE: Input affitto mensile invece che annuale
         affitto_mensile = st.number_input(
             get_text('monthly_rent'), min_value=0.00, value=1000.00, step=50.00, key="real_estate_monthly_rent")
@@ -256,6 +314,7 @@ def render_real_estate_section():
             get_text('annual_appreciation'), min_value=0.0, max_value=50.0, value=2.0, step=0.1, key="real_estate_appreciation")
         anni_investimento = st.number_input(
             get_text('investment_years'), min_value=1, value=10, step=1, key="real_estate_years")
+        
         st.write(f"**{get_text('one_time_commissions')}**")
         commissione_iniziale = st.number_input(
             get_text('initial_commission'), min_value=0.00, value=0.00, step=100.00, key="real_estate_initial_commission",
@@ -263,6 +322,7 @@ def render_real_estate_section():
         commissione_finale = st.number_input(
             get_text('final_commission'), min_value=0.00, value=0.00, step=100.00, key="real_estate_final_commission",
             help=get_text('final_commission_help'))
+    
     with col2:
         st.write(f"**{get_text('costs_expenses')}**")
         costi_assicurazione_euro = st.number_input(
@@ -283,6 +343,7 @@ def render_real_estate_section():
             get_text('monthly_mortgage'), min_value=0.00, max_value=10000.00, value=0.00, step=50.00, key="real_estate_mortgage_payment")
         anni_restanti_mutuo = st.number_input(
             get_text('remaining_mortgage_years'), min_value=0, max_value=50, value=0, step=1, key="real_estate_mortgage_years")
+    
     with col3:
         st.write(f"**{get_text('economic_params')}**")
         periodo_sfitto_perc = st.number_input(
@@ -342,6 +403,8 @@ def render_real_estate_section():
             
             params = {
                 'valore_immobile': valore_immobile,
+                'costo_acquisto': costo_acquisto,
+                'costo_ristrutturazione': costo_ristrutturazione,
                 'affitto_lordo': affitto_lordo,  # Usa l'affitto annuale calcolato
                 'rivalutazione_annua': rivalutazione_annua,
                 'anni_investimento': anni_investimento,
